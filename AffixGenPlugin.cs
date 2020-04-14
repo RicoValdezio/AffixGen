@@ -30,8 +30,8 @@ namespace AffixGen
 
             PaleOrbEquip.Init();
             LunarOrbEquip.Init();
-            CaptureBuff.Init();
-            CaptureDebuff.Init();
+            PaleOrbAffliction.Init();
+            LunarOrbAffliction.Init();
             OrbEquipmentHooks.Init();
         }
     }
@@ -102,18 +102,19 @@ namespace AffixGen
             On.RoR2.EquipmentSlot.PerformEquipmentAction += (orig, self, equipmentIndex) =>
             {
                 CharacterBody Body = self.characterBody;
-                if (equipmentIndex == PaleOrbEquip.PaleOrbEquipmentIndex && Body.GetBuffCount(CaptureBuff.CaptureBuffIndex) < 100)
+                Inventory PlayerInventory = Body.inventory;
+                if (equipmentIndex == PaleOrbEquip.PaleOrbEquipmentIndex && PlayerInventory.GetItemCount(PaleOrbAffliction.PaleOrbAfflictionIndex) < 100)
                 {
-                    Body.AddBuff(CaptureBuff.CaptureBuffIndex);
+                    PlayerInventory.GiveItem(PaleOrbAffliction.PaleOrbAfflictionIndex);
                     return true;
                 }
-                else if (equipmentIndex == LunarOrbEquip.LunarOrbEquipmentIndex && Body.GetBuffCount(CaptureBuff.CaptureBuffIndex) < 100)
+                else if (equipmentIndex == LunarOrbEquip.LunarOrbEquipmentIndex && PlayerInventory.GetItemCount(PaleOrbAffliction.PaleOrbAfflictionIndex) < 100)
                 {
                     int rep = 0;
-                    while (rep < 10 & Body.GetBuffCount(CaptureBuff.CaptureBuffIndex) < 100)
+                    while (rep < 10 & PlayerInventory.GetItemCount(PaleOrbAffliction.PaleOrbAfflictionIndex) < 100)
                     {
-                        Body.AddBuff(CaptureBuff.CaptureBuffIndex);
-                        Body.AddBuff(CaptureDebuff.CaptureDebuffIndex);
+                        PlayerInventory.GiveItem(PaleOrbAffliction.PaleOrbAfflictionIndex);
+                        PlayerInventory.GiveItem(LunarOrbAffliction.LunarOrbAfflictionIndex);
                         rep++;
                     }
                     return true;
@@ -128,117 +129,119 @@ namespace AffixGen
                 CharacterBody VictimBody = victim.GetComponent<CharacterBody>();
                 CharacterMaster AttackerMaster = AttackerBody.master;
                 CharacterMaster VictimMaster = VictimBody.master;
+                Inventory AttackerInventory = AttackerBody.inventory;
                 //Determine if Player Gets a Affix
-                if (VictimMaster.IsDeadAndOutOfLivesServer() && AttackerBody.HasBuff(CaptureBuff.CaptureBuffIndex))
+                if (VictimMaster.IsDeadAndOutOfLivesServer() && AttackerInventory.GetItemCount(PaleOrbAffliction.PaleOrbAfflictionIndex) > 0)
                 {
-                    int BuffCount = AttackerBody.GetBuffCount(CaptureBuff.CaptureBuffIndex);
-                    int BuffRoll = new Random().Next(100) + 1;
-                    if(BuffCount < BuffRoll)
+                    int BoonCount = AttackerInventory.GetItemCount(PaleOrbAffliction.PaleOrbAfflictionIndex);
+                    int BoonRoll = new Random().Next(100) + 1;
+                    if (BoonCount < BoonRoll)
                     {
                         return;
                     }
                     else if (VictimBody.HasBuff(BuffIndex.AffixBlue))
                     {
-                        ClearCaptureBuffs(AttackerBody);
+                        ClearPaleAffliction(AttackerBody);
                         AttackerMaster.inventory.SetEquipmentIndex(EquipmentIndex.AffixBlue);
+                        return;
                     }
                     else if (VictimBody.HasBuff(BuffIndex.AffixRed))
                     {
-                        ClearCaptureBuffs(AttackerBody);
+                        ClearPaleAffliction(AttackerBody);
                         AttackerMaster.inventory.SetEquipmentIndex(EquipmentIndex.AffixRed);
+                        return;
                     }
                     else if (VictimBody.HasBuff(BuffIndex.AffixWhite))
                     {
-                        ClearCaptureBuffs(AttackerBody);
+                        ClearPaleAffliction(AttackerBody);
                         AttackerMaster.inventory.SetEquipmentIndex(EquipmentIndex.AffixWhite);
+                        return;
                     }
                     else if (VictimBody.HasBuff(BuffIndex.AffixHaunted))
                     {
-                        ClearCaptureBuffs(AttackerBody);
+                        ClearPaleAffliction(AttackerBody);
                         AttackerMaster.inventory.SetEquipmentIndex(EquipmentIndex.AffixHaunted);
+                        return;
                     }
                     else if (VictimBody.HasBuff(BuffIndex.AffixPoison))
                     {
-                        ClearCaptureBuffs(AttackerBody);
+                        ClearPaleAffliction(AttackerBody);
                         AttackerMaster.inventory.SetEquipmentIndex(EquipmentIndex.AffixPoison);
+                        return;
                     }
                 }
                 //Determine if Player Clears Debuff
-                if (VictimMaster.IsDeadAndOutOfLivesServer() && AttackerBody.HasBuff(CaptureDebuff.CaptureDebuffIndex))
+                if (VictimMaster.IsDeadAndOutOfLivesServer() && AttackerInventory.GetItemCount(LunarOrbAffliction.LunarOrbAfflictionIndex) > 0)
                 {
-                    if (VictimBody.HasBuff(BuffIndex.AffixBlue) && AttackerBody.HasBuff(BuffIndex.AffixBlue))
+                    if (VictimBody.isElite && AttackerBody.isElite)
                     {
-                        AttackerBody.RemoveBuff(CaptureDebuff.CaptureDebuffIndex);
-                    }
-                    else if (VictimBody.HasBuff(BuffIndex.AffixRed) && AttackerBody.HasBuff(BuffIndex.AffixRed))
-                    {
-                        AttackerBody.RemoveBuff(CaptureDebuff.CaptureDebuffIndex);
-                    }
-                    else if (VictimBody.HasBuff(BuffIndex.AffixWhite) && AttackerBody.HasBuff(BuffIndex.AffixWhite))
-                    {
-                        AttackerBody.RemoveBuff(CaptureDebuff.CaptureDebuffIndex);
-                    }
-                    else if (VictimBody.HasBuff(BuffIndex.AffixHaunted) && AttackerBody.HasBuff(BuffIndex.AffixHaunted))
-                    {
-                        AttackerBody.RemoveBuff(CaptureDebuff.CaptureDebuffIndex);
-                    }
-                    else if (VictimBody.HasBuff(BuffIndex.AffixPoison) && AttackerBody.HasBuff(BuffIndex.AffixPoison))
-                    {
-                        AttackerBody.RemoveBuff(CaptureDebuff.CaptureDebuffIndex);
+                        AttackerInventory.RemoveItem(LunarOrbAffliction.LunarOrbAfflictionIndex);
+                        return;
                     }
                 }
                 return;
             };
         }
 
-        internal static void ClearCaptureBuffs(CharacterBody playerBody)
+        internal static void ClearPaleAffliction(CharacterBody playerBody)
         {
-            while (playerBody.HasBuff(CaptureBuff.CaptureBuffIndex))
+            Inventory inventory = playerBody.inventory;
+            while (inventory.GetItemCount(PaleOrbAffliction.PaleOrbAfflictionIndex) > 0)
             {
-                playerBody.RemoveBuff(CaptureBuff.CaptureBuffIndex);
+                inventory.RemoveItem(PaleOrbAffliction.PaleOrbAfflictionIndex);
             }
         }
     }
 
-    internal class CaptureBuff
+    internal class PaleOrbAffliction
     {
-        internal static BuffIndex CaptureBuffIndex;
+        internal static ItemIndex PaleOrbAfflictionIndex;
 
         internal static void Init()
         {
-            BuffDef CaptureBuffDef = new BuffDef
+            ItemDef PaleOrbAfflictionDef = new ItemDef
             {
-                name = "AffixCaptureBuff",
-                iconPath = "@AffixGen:Assets/Buff_Icon.png",
-                buffColor = new Color(0.7764f, 0.9686f, 0.7921f),
-                isDebuff = false,
-                canStack = true
+                name = "PaleOrbAffliction",
+                pickupModelPath = null,
+                pickupIconPath = "@AffixGen:Assets/PaleOrb_Affliction.png",
+                nameToken = "Boon of the Tempest",
+                pickupToken = "Grants <style=cIsUtility>1%</style> chance to capture an element.",
+                descriptionToken = "Grants <style=cIsUtility>1%</style> chance to capture an element.",
+                loreToken = null,
+                tier = ItemTier.NoTier
             };
 
-            CustomBuff CaptureBuffItem = new CustomBuff("Affix Capture Chance", CaptureBuffDef);
+            ItemDisplayRule[] DisplayRules = null;
 
-            CaptureBuffIndex = ItemAPI.Add(CaptureBuffItem);
+            CustomItem PaleOrbAfflictionItem = new CustomItem(PaleOrbAfflictionDef, DisplayRules);
+
+            PaleOrbAfflictionIndex = ItemAPI.Add(PaleOrbAfflictionItem);
         }
     }
 
-    internal class CaptureDebuff
+    internal class LunarOrbAffliction
     {
-        internal static BuffIndex CaptureDebuffIndex;
+        internal static ItemIndex LunarOrbAfflictionIndex;
 
         internal static void Init()
         {
-            BuffDef CaptureDebuffDef = new BuffDef
+            ItemDef LunarOrbAfflictionDef = new ItemDef
             {
-                name = "AffixCaptureDebuff",
-                iconPath = "@AffixGen:Assets/Buff_Icon.png",
-                buffColor = new Color(0.8235f, 0.5882f, 0.4470f),
-                isDebuff = true,
-                canStack = true,
+                name = "LunarOrbAffliction",
+                pickupModelPath = null,
+                pickupIconPath = "@AffixGen:Assets/LunarOrb_Affliction.png",
+                nameToken = "Curse of the Tempest",
+                pickupToken = "<style=cDeath>Grants 1% weakness to elemental damage</style>.",
+                descriptionToken = "<style=cDeath>Grants 1% weakness to elemental damage</style>.",
+                loreToken = null,
+                tier = ItemTier.NoTier
             };
 
-            CustomBuff CaptureDebuffItem = new CustomBuff("Elemental Weakness", CaptureDebuffDef);
+            ItemDisplayRule[] DisplayRules = null;
 
-            CaptureDebuffIndex = ItemAPI.Add(CaptureDebuffItem);
+            CustomItem LunarOrbAfflictionItem = new CustomItem(LunarOrbAfflictionDef, DisplayRules);
+
+            LunarOrbAfflictionIndex = ItemAPI.Add(LunarOrbAfflictionItem);
         }
     }
 }
