@@ -50,8 +50,8 @@ namespace AffixGen
                 pickupModelPath = "@AffixGen:Assets/PaleOrb.prefab",
                 pickupIconPath = "@AffixGen:Assets/PaleOrb_Icon.png",
                 nameToken = "Pale Orb",
-                pickupToken = "Gain <style=cIsUtility>1%</style> chance to capture an element.",
-                descriptionToken = "Gain <style=cIsUtility>1% (+1% per use)</style> chance to capture an element.",
+                pickupToken = "Gain <style=cIsUtility>1 Boon of the Tempest</style> on use.",
+                descriptionToken = "Gain <style=cIsUtility>1 Boon of the Tempest</style> on use.",
                 loreToken = "Not so much a Tabula Rasa as it is a Sphaera Mundi./n -Octavius VII",
                 canDrop = true,
                 enigmaCompatible = true
@@ -79,9 +79,9 @@ namespace AffixGen
                 pickupModelPath = "@AffixGen:Assets/LunarOrb.prefab",
                 pickupIconPath = "@AffixGen:Assets/LunarOrb_Icon.png",
                 nameToken = "Soul of a Tempest",
-                pickupToken = "Gain <style=cIsUtility>10%</style> chance to capture an element, <style=cDeath>for a cost</style>.",
-                descriptionToken = "Gain <style=cIsUtility>10% (+10% per use)</style> chance to capture an element and <style=cDeath>10% (+10% per use) weakness to elemental damage</style>.",
-                loreToken = "You just had to go and use that damned thing twice, didn't you?/n -Octavius VII",
+                pickupToken = "Gain <style=cIsUtility>10 Boon of the Tempest</style> and <style=cDeath>10 Curse of the Tempest</style> on use.",
+                descriptionToken = "Gain <style=cIsUtility>10 Boon of the Tempest</style> and <style=cDeath>10 Curse of the Tempest</style> on use.",
+                loreToken = "You just had to go and use that damned thing ten times, didn't you?/n -Octavius VII",
                 canDrop = true,
                 enigmaCompatible = true
             };
@@ -105,69 +105,59 @@ namespace AffixGen
                 Inventory PlayerInventory = Body.inventory;
                 if (equipmentIndex == PaleOrbEquip.PaleOrbEquipmentIndex && PlayerInventory.GetItemCount(PaleOrbAffliction.PaleOrbAfflictionIndex) < 100)
                 {
-                    PlayerInventory.GiveItem(PaleOrbAffliction.PaleOrbAfflictionIndex);
+                    PlayerInventory.GiveItem(PaleOrbAffliction.PaleOrbAfflictionIndex, 1);
                     return true;
                 }
                 else if (equipmentIndex == LunarOrbEquip.LunarOrbEquipmentIndex && PlayerInventory.GetItemCount(PaleOrbAffliction.PaleOrbAfflictionIndex) < 100)
                 {
-                    int rep = 0;
-                    while (rep < 10 & PlayerInventory.GetItemCount(PaleOrbAffliction.PaleOrbAfflictionIndex) < 100)
-                    {
-                        PlayerInventory.GiveItem(PaleOrbAffliction.PaleOrbAfflictionIndex);
-                        PlayerInventory.GiveItem(LunarOrbAffliction.LunarOrbAfflictionIndex);
-                        rep++;
-                    }
+                    int GiveAmount = Math.Min(100 - PlayerInventory.GetItemCount(PaleOrbAffliction.PaleOrbAfflictionIndex), 10);
+                    PlayerInventory.GiveItem(PaleOrbAffliction.PaleOrbAfflictionIndex, GiveAmount);
+                    PlayerInventory.GiveItem(LunarOrbAffliction.LunarOrbAfflictionIndex, GiveAmount);
                     return true;
                 }
                 return orig(self, equipmentIndex);
             };
 
-            //On Elite Kill
+            //On Hit
             On.RoR2.GlobalEventManager.OnHitEnemy += (orig, self, damageInfo, victim) =>
             {
+                orig(self, damageInfo, victim);
                 CharacterBody AttackerBody = damageInfo.attacker.GetComponent<CharacterBody>();
                 CharacterBody VictimBody = victim.GetComponent<CharacterBody>();
                 CharacterMaster AttackerMaster = AttackerBody.master;
                 CharacterMaster VictimMaster = VictimBody.master;
                 Inventory AttackerInventory = AttackerBody.inventory;
+                Inventory VictimInventory = VictimBody.inventory;
                 //Determine if Player Gets a Affix
                 if (VictimMaster.IsDeadAndOutOfLivesServer() && AttackerInventory.GetItemCount(PaleOrbAffliction.PaleOrbAfflictionIndex) > 0)
                 {
                     int BoonCount = AttackerInventory.GetItemCount(PaleOrbAffliction.PaleOrbAfflictionIndex);
                     int BoonRoll = new Random().Next(100) + 1;
-                    if (BoonCount < BoonRoll)
-                    {
-                        return;
-                    }
+                    if (BoonCount < BoonRoll) { }
                     else if (VictimBody.HasBuff(BuffIndex.AffixBlue))
                     {
                         ClearPaleAffliction(AttackerBody);
                         AttackerMaster.inventory.SetEquipmentIndex(EquipmentIndex.AffixBlue);
-                        return;
                     }
                     else if (VictimBody.HasBuff(BuffIndex.AffixRed))
                     {
                         ClearPaleAffliction(AttackerBody);
                         AttackerMaster.inventory.SetEquipmentIndex(EquipmentIndex.AffixRed);
-                        return;
                     }
                     else if (VictimBody.HasBuff(BuffIndex.AffixWhite))
                     {
                         ClearPaleAffliction(AttackerBody);
                         AttackerMaster.inventory.SetEquipmentIndex(EquipmentIndex.AffixWhite);
-                        return;
                     }
                     else if (VictimBody.HasBuff(BuffIndex.AffixHaunted))
                     {
                         ClearPaleAffliction(AttackerBody);
                         AttackerMaster.inventory.SetEquipmentIndex(EquipmentIndex.AffixHaunted);
-                        return;
                     }
                     else if (VictimBody.HasBuff(BuffIndex.AffixPoison))
                     {
                         ClearPaleAffliction(AttackerBody);
                         AttackerMaster.inventory.SetEquipmentIndex(EquipmentIndex.AffixPoison);
-                        return;
                     }
                 }
                 //Determine if Player Clears Debuff
@@ -175,21 +165,36 @@ namespace AffixGen
                 {
                     if (VictimBody.isElite && AttackerBody.isElite)
                     {
-                        AttackerInventory.RemoveItem(LunarOrbAffliction.LunarOrbAfflictionIndex);
-                        return;
+                        AttackerInventory.RemoveItem(LunarOrbAffliction.LunarOrbAfflictionIndex, 1);
                     }
                 }
-                return;
+                //Determine if Player Takes Curse Damage
+                if (VictimInventory.GetItemCount(LunarOrbAffliction.LunarOrbAfflictionIndex) > 0 && AttackerBody.isElite)
+                {
+                    int CurseCount = AttackerInventory.GetItemCount(LunarOrbAffliction.LunarOrbAfflictionIndex);
+                    float CursePercent = CurseCount / 100;
+                    DamageInfo EliteBonusDamage = new DamageInfo
+                    {
+                        damage = damageInfo.damage * CursePercent,
+                        damageColorIndex = DamageColorIndex.DeathMark,
+                        damageType = DamageType.Generic,
+                        attacker = null,
+                        crit = damageInfo.crit,
+                        force = Vector3.zero,
+                        inflictor = null,
+                        position = damageInfo.position,
+                        procChainMask = damageInfo.procChainMask,
+                        procCoefficient = 0f
+                    };
+                    VictimBody.healthComponent.TakeDamage(EliteBonusDamage);
+                }
             };
         }
 
         internal static void ClearPaleAffliction(CharacterBody playerBody)
         {
             Inventory inventory = playerBody.inventory;
-            while (inventory.GetItemCount(PaleOrbAffliction.PaleOrbAfflictionIndex) > 0)
-            {
-                inventory.RemoveItem(PaleOrbAffliction.PaleOrbAfflictionIndex);
-            }
+            inventory.RemoveItem(PaleOrbAffliction.PaleOrbAfflictionIndex, inventory.GetItemCount(PaleOrbAffliction.PaleOrbAfflictionIndex));
         }
     }
 
@@ -231,8 +236,8 @@ namespace AffixGen
                 pickupModelPath = null,
                 pickupIconPath = "@AffixGen:Assets/LunarOrb_Affliction.png",
                 nameToken = "Curse of the Tempest",
-                pickupToken = "<style=cDeath>Grants 1% weakness to elemental damage</style>.",
-                descriptionToken = "<style=cDeath>Grants 1% weakness to elemental damage</style>.",
+                pickupToken = "<style=cDeath>Grants 1% weakness to elites</style>.",
+                descriptionToken = "<style=cDeath>Grants 1% weakness to elites</style>.",
                 loreToken = null,
                 tier = ItemTier.NoTier
             };
