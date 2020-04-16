@@ -169,7 +169,7 @@ namespace AffixGen
             Inventory AttackerInventory = AttackerBody.inventory;
             Inventory VictimInventory = VictimBody.inventory;
             //Determine if Player Gets a Affix
-            if (VictimMaster.IsDeadAndOutOfLivesServer() && AttackerInventory.GetItemCount(PaleOrbAffliction.PaleOrbAfflictionIndex) > 0)
+            if (AttackerBody.isPlayerControlled && VictimMaster.IsDeadAndOutOfLivesServer() && AttackerInventory.GetItemCount(PaleOrbAffliction.PaleOrbAfflictionIndex) > 0)
             {
                 int BoonCount = AttackerInventory.GetItemCount(PaleOrbAffliction.PaleOrbAfflictionIndex);
                 float BoonCountValue = BoonCount * AffixGen.BoonValue.Value;
@@ -202,7 +202,7 @@ namespace AffixGen
                 }
             }
             //Determine if Player Clears Debuff
-            if (VictimMaster.IsDeadAndOutOfLivesServer() && AttackerInventory.GetItemCount(LunarOrbAffliction.LunarOrbAfflictionIndex) > 0)
+            if (AttackerBody.isPlayerControlled && VictimMaster.IsDeadAndOutOfLivesServer() && AttackerInventory.GetItemCount(LunarOrbAffliction.LunarOrbAfflictionIndex) > 0)
             {
                 if (VictimBody.isElite && AttackerBody.isElite)
                 {
@@ -210,7 +210,7 @@ namespace AffixGen
                 }
             }
             //Determine if Player Takes Curse Damage
-            if (VictimInventory.GetItemCount(LunarOrbAffliction.LunarOrbAfflictionIndex) > 0 && AttackerBody.isElite)
+            if (VictimBody.isPlayerControlled && VictimInventory.GetItemCount(LunarOrbAffliction.LunarOrbAfflictionIndex) > 0 && AttackerBody.isElite)
             {
                 int CurseCount = AttackerInventory.GetItemCount(LunarOrbAffliction.LunarOrbAfflictionIndex);
                 float CurseCountValue = CurseCount * AffixGen.CurseValue.Value;

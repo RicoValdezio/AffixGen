@@ -8,6 +8,7 @@ By Default:
 
 Changelog
 ------------
+1.1.1 - Fixed bug that may cause global invincibility
 1.1.0 - Added Configuration
 1.0.1 - Refactored to prevent infinte loop with LightningOrb
 1.0.0 - Initial Upload
