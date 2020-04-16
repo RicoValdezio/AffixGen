@@ -7,6 +7,7 @@ The lunar debuff can be reduced by killing elites as an elite.
 
 Changelog
 ------------
+1.0.1 - Refactored to prevent infinte loop with LightningOrb
 1.0.0 - Initial Upload
 
 Installation

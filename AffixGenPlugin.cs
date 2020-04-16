@@ -118,99 +118,103 @@ namespace AffixGen
         internal static void Init()
         {
             //On Equipment Usage
-            On.RoR2.EquipmentSlot.PerformEquipmentAction += (orig, self, equipmentIndex) =>
-            {
-                CharacterBody Body = self.characterBody;
-                Inventory PlayerInventory = Body.inventory;
-                if (equipmentIndex == PaleOrbEquip.PaleOrbEquipmentIndex && PlayerInventory.GetItemCount(PaleOrbAffliction.PaleOrbAfflictionIndex) < 100)
-                {
-                    PlayerInventory.GiveItem(PaleOrbAffliction.PaleOrbAfflictionIndex, 1);
-                    return true;
-                }
-                else if (equipmentIndex == LunarOrbEquip.LunarOrbEquipmentIndex && PlayerInventory.GetItemCount(PaleOrbAffliction.PaleOrbAfflictionIndex) < 100)
-                {
-                    int GiveAmount = Math.Min(100 - PlayerInventory.GetItemCount(PaleOrbAffliction.PaleOrbAfflictionIndex), 10);
-                    PlayerInventory.GiveItem(PaleOrbAffliction.PaleOrbAfflictionIndex, GiveAmount);
-                    PlayerInventory.GiveItem(LunarOrbAffliction.LunarOrbAfflictionIndex, GiveAmount);
-                    return true;
-                }
-                return orig(self, equipmentIndex);
-            };
+            On.RoR2.EquipmentSlot.PerformEquipmentAction += EquipmentSlot_PerformEquipmentAction;
 
-            //On Hit
-            On.RoR2.GlobalEventManager.OnHitEnemy += (orig, self, damageInfo, victim) =>
-            {
-                orig(self, damageInfo, victim);
-                CharacterBody AttackerBody = damageInfo.attacker.GetComponent<CharacterBody>();
-                CharacterBody VictimBody = victim.GetComponent<CharacterBody>();
-                CharacterMaster AttackerMaster = AttackerBody.master;
-                CharacterMaster VictimMaster = VictimBody.master;
-                Inventory AttackerInventory = AttackerBody.inventory;
-                Inventory VictimInventory = VictimBody.inventory;
-                //Determine if Player Gets a Affix
-                if (VictimMaster.IsDeadAndOutOfLivesServer() && AttackerInventory.GetItemCount(PaleOrbAffliction.PaleOrbAfflictionIndex) > 0)
-                {
-                    int BoonCount = AttackerInventory.GetItemCount(PaleOrbAffliction.PaleOrbAfflictionIndex);
-                    int BoonRoll = UnityEngine.Random.Range(1, 100);
-                    if (BoonCount < BoonRoll) { }
-                    else if (VictimBody.HasBuff(BuffIndex.AffixBlue))
-                    {
-                        ClearPaleAffliction(AttackerBody);
-                        AttackerMaster.inventory.SetEquipmentIndex(EquipmentIndex.AffixBlue);
-                    }
-                    else if (VictimBody.HasBuff(BuffIndex.AffixRed))
-                    {
-                        ClearPaleAffliction(AttackerBody);
-                        AttackerMaster.inventory.SetEquipmentIndex(EquipmentIndex.AffixRed);
-                    }
-                    else if (VictimBody.HasBuff(BuffIndex.AffixWhite))
-                    {
-                        ClearPaleAffliction(AttackerBody);
-                        AttackerMaster.inventory.SetEquipmentIndex(EquipmentIndex.AffixWhite);
-                    }
-                    else if (VictimBody.HasBuff(BuffIndex.AffixHaunted))
-                    {
-                        ClearPaleAffliction(AttackerBody);
-                        AttackerMaster.inventory.SetEquipmentIndex(EquipmentIndex.AffixHaunted);
-                    }
-                    else if (VictimBody.HasBuff(BuffIndex.AffixPoison))
-                    {
-                        ClearPaleAffliction(AttackerBody);
-                        AttackerMaster.inventory.SetEquipmentIndex(EquipmentIndex.AffixPoison);
-                    }
-                }
-                //Determine if Player Clears Debuff
-                if (VictimMaster.IsDeadAndOutOfLivesServer() && AttackerInventory.GetItemCount(LunarOrbAffliction.LunarOrbAfflictionIndex) > 0)
-                {
-                    if (VictimBody.isElite && AttackerBody.isElite)
-                    {
-                        AttackerInventory.RemoveItem(LunarOrbAffliction.LunarOrbAfflictionIndex, 1);
-                    }
-                }
-                //Determine if Player Takes Curse Damage
-                if (VictimInventory.GetItemCount(LunarOrbAffliction.LunarOrbAfflictionIndex) > 0 && AttackerBody.isElite)
-                {
-                    int CurseCount = AttackerInventory.GetItemCount(LunarOrbAffliction.LunarOrbAfflictionIndex);
-                    float CursePercent = CurseCount / 100;
-                    DamageInfo EliteBonusDamage = new DamageInfo
-                    {
-                        damage = damageInfo.damage * CursePercent,
-                        damageColorIndex = DamageColorIndex.DeathMark,
-                        damageType = DamageType.Generic,
-                        attacker = null,
-                        crit = damageInfo.crit,
-                        force = Vector3.zero,
-                        inflictor = null,
-                        position = damageInfo.position,
-                        procChainMask = damageInfo.procChainMask,
-                        procCoefficient = 0f
-                    };
-                    VictimBody.healthComponent.TakeDamage(EliteBonusDamage);
-                }
-            };
+            //On Take Damage
+            On.RoR2.HealthComponent.TakeDamage += HealthComponent_TakeDamage;
         }
 
-        internal static void ClearPaleAffliction(CharacterBody playerBody)
+        private static bool EquipmentSlot_PerformEquipmentAction(On.RoR2.EquipmentSlot.orig_PerformEquipmentAction orig, EquipmentSlot self, EquipmentIndex equipmentIndex)
+        {
+            CharacterBody Body = self.characterBody;
+            Inventory PlayerInventory = Body.inventory;
+            if (equipmentIndex == PaleOrbEquip.PaleOrbEquipmentIndex && PlayerInventory.GetItemCount(PaleOrbAffliction.PaleOrbAfflictionIndex) < 100)
+            {
+                PlayerInventory.GiveItem(PaleOrbAffliction.PaleOrbAfflictionIndex, 1);
+                return true;
+            }
+            else if (equipmentIndex == LunarOrbEquip.LunarOrbEquipmentIndex && PlayerInventory.GetItemCount(PaleOrbAffliction.PaleOrbAfflictionIndex) < 100)
+            {
+                int GiveAmount = Math.Min(100 - PlayerInventory.GetItemCount(PaleOrbAffliction.PaleOrbAfflictionIndex), 10);
+                PlayerInventory.GiveItem(PaleOrbAffliction.PaleOrbAfflictionIndex, GiveAmount);
+                PlayerInventory.GiveItem(LunarOrbAffliction.LunarOrbAfflictionIndex, GiveAmount);
+                return true;
+            }
+            return orig(self, equipmentIndex);
+        }
+
+        private static void HealthComponent_TakeDamage(On.RoR2.HealthComponent.orig_TakeDamage orig, HealthComponent self, DamageInfo damageInfo)
+        {
+            CharacterBody AttackerBody = damageInfo.attacker.GetComponent<CharacterBody>();
+            CharacterBody VictimBody = self.GetComponent<CharacterBody>();
+            CharacterMaster AttackerMaster = AttackerBody.master;
+            CharacterMaster VictimMaster = VictimBody.master;
+            Inventory AttackerInventory = AttackerBody.inventory;
+            Inventory VictimInventory = VictimBody.inventory;
+            //Determine if Player Gets a Affix
+            if (VictimMaster.IsDeadAndOutOfLivesServer() && AttackerInventory.GetItemCount(PaleOrbAffliction.PaleOrbAfflictionIndex) > 0)
+            {
+                int BoonCount = AttackerInventory.GetItemCount(PaleOrbAffliction.PaleOrbAfflictionIndex);
+                int BoonRoll = UnityEngine.Random.Range(1, 100);
+                if (BoonCount < BoonRoll) { }
+                else if (VictimBody.HasBuff(BuffIndex.AffixBlue))
+                {
+                    ClearPaleAffliction(AttackerBody);
+                    AttackerMaster.inventory.SetEquipmentIndex(EquipmentIndex.AffixBlue);
+                }
+                else if (VictimBody.HasBuff(BuffIndex.AffixRed))
+                {
+                    ClearPaleAffliction(AttackerBody);
+                    AttackerMaster.inventory.SetEquipmentIndex(EquipmentIndex.AffixRed);
+                }
+                else if (VictimBody.HasBuff(BuffIndex.AffixWhite))
+                {
+                    ClearPaleAffliction(AttackerBody);
+                    AttackerMaster.inventory.SetEquipmentIndex(EquipmentIndex.AffixWhite);
+                }
+                else if (VictimBody.HasBuff(BuffIndex.AffixHaunted))
+                {
+                    ClearPaleAffliction(AttackerBody);
+                    AttackerMaster.inventory.SetEquipmentIndex(EquipmentIndex.AffixHaunted);
+                }
+                else if (VictimBody.HasBuff(BuffIndex.AffixPoison))
+                {
+                    ClearPaleAffliction(AttackerBody);
+                    AttackerMaster.inventory.SetEquipmentIndex(EquipmentIndex.AffixPoison);
+                }
+            }
+            //Determine if Player Clears Debuff
+            if (VictimMaster.IsDeadAndOutOfLivesServer() && AttackerInventory.GetItemCount(LunarOrbAffliction.LunarOrbAfflictionIndex) > 0)
+            {
+                if (VictimBody.isElite && AttackerBody.isElite)
+                {
+                    AttackerInventory.RemoveItem(LunarOrbAffliction.LunarOrbAfflictionIndex, 1);
+                }
+            }
+            //Determine if Player Takes Curse Damage
+            if (VictimInventory.GetItemCount(LunarOrbAffliction.LunarOrbAfflictionIndex) > 0 && AttackerBody.isElite)
+            {
+                int CurseCount = AttackerInventory.GetItemCount(LunarOrbAffliction.LunarOrbAfflictionIndex);
+                float CursePercent = CurseCount / 100;
+                DamageInfo EliteBonusDamage = new DamageInfo
+                {
+                    damage = damageInfo.damage * CursePercent,
+                    damageColorIndex = DamageColorIndex.DeathMark,
+                    damageType = DamageType.Generic,
+                    attacker = null,
+                    crit = damageInfo.crit,
+                    force = Vector3.zero,
+                    inflictor = null,
+                    position = damageInfo.position,
+                    procChainMask = damageInfo.procChainMask,
+                    procCoefficient = 0f
+                };
+                VictimBody.healthComponent.TakeDamage(EliteBonusDamage);
+            }
+            orig(self, damageInfo);
+        }
+
+        private static void ClearPaleAffliction(CharacterBody playerBody)
         {
             Inventory inventory = playerBody.inventory;
             inventory.RemoveItem(PaleOrbAffliction.PaleOrbAfflictionIndex, inventory.GetItemCount(PaleOrbAffliction.PaleOrbAfflictionIndex));
