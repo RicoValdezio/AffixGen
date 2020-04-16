@@ -5,13 +5,17 @@ using RoR2;
 using System;
 using System.Reflection;
 using UnityEngine;
-using Random = System.Random;
 
 namespace AffixGen
 {
-
-    [BepInDependency("com.bepis.r2api")]
-    [R2APISubmoduleDependency(nameof(ItemAPI), nameof(ItemDropAPI), nameof(ResourcesAPI))]
+    [BepInDependency("com.bepis.r2api", BepInDependency.DependencyFlags.HardDependency)]
+    [R2APISubmoduleDependency(new string[]
+    {
+        "ItemAPI",
+        "ItemDropAPI",
+        "ResourcesAPI",
+        "AssetPlus",
+    })]
     [BepInPlugin(ModGuid, ModName, ModVer)]
     public class AffixGen : BaseUnityPlugin
     {
@@ -36,23 +40,33 @@ namespace AffixGen
         }
     }
 
+    internal class AffixGenConfig
+    {
+
+    }
+
     internal class PaleOrbEquip
     {
         internal static EquipmentIndex PaleOrbEquipmentIndex;
 
         internal static void Init()
         {
+            R2API.AssetPlus.Languages.AddToken("PALE_ORB_NAME_TOKEN", "Pale Orb");
+            R2API.AssetPlus.Languages.AddToken("PALE_ORB_PICKUP_TOKEN", "Gain <style=cIsUtility>1 Boon of the Tempest</style> on use.");
+            R2API.AssetPlus.Languages.AddToken("PALE_ORB_DESCRIPITON_TOKEN", "Gain <style=cIsUtility>1 Boon of the Tempest</style> on use.");
+            R2API.AssetPlus.Languages.AddToken("PALE_ORB_LORE_TOKEN", "Not so much a Tabula Rasa as it is a Sphaera Mundi./n -Octavius VII");
+
             EquipmentDef PaleOrbEquipmentDef = new EquipmentDef
             {
-                name = "PaleOrbEquipment",
+                name = "PALE_ORB_NAME_TOKEN",
                 cooldown = 45f,
                 isLunar = false,
                 pickupModelPath = "@AffixGen:Assets/PaleOrb.prefab",
                 pickupIconPath = "@AffixGen:Assets/PaleOrb_Icon.png",
-                nameToken = "Pale Orb",
-                pickupToken = "Gain <style=cIsUtility>1 Boon of the Tempest</style> on use.",
-                descriptionToken = "Gain <style=cIsUtility>1 Boon of the Tempest</style> on use.",
-                loreToken = "Not so much a Tabula Rasa as it is a Sphaera Mundi./n -Octavius VII",
+                nameToken = "PALE_ORB_NAME_TOKEN",
+                pickupToken = "PALE_ORB_PICKUP_TOKEN",
+                descriptionToken = "PALE_ORB_DESCRIPITON_TOKEN",
+                loreToken = "PALE_ORB_LORE_TOKEN",
                 canDrop = true,
                 enigmaCompatible = true
             };
@@ -71,17 +85,22 @@ namespace AffixGen
 
         internal static void Init()
         {
+            R2API.AssetPlus.Languages.AddToken("LUNAR_ORB_NAME_TOKEN", "Soul of a Tempest");
+            R2API.AssetPlus.Languages.AddToken("LUNAR_ORB_PICKUP_TOKEN", "Gain <style=cIsUtility>10 Boon of the Tempest</style> and <style=cDeath>10 Curse of the Tempest</style> on use.");
+            R2API.AssetPlus.Languages.AddToken("LUNAR_ORB_DESCRIPITON_TOKEN", "Gain <style=cIsUtility>10 Boon of the Tempest</style> and <style=cDeath>10 Curse of the Tempest</style> on use.");
+            R2API.AssetPlus.Languages.AddToken("LUNAR_ORB_LORE_TOKEN", "You just had to go and use that damned thing ten times, didn't you?/n -Octavius VII");
+
             EquipmentDef LunarOrbEquipmentDef = new EquipmentDef
             {
-                name = "LunarOrbEquipment",
+                name = "LUNAR_ORB_NAME_TOKEN",
                 cooldown = 45f,
                 isLunar = true,
                 pickupModelPath = "@AffixGen:Assets/LunarOrb.prefab",
                 pickupIconPath = "@AffixGen:Assets/LunarOrb_Icon.png",
-                nameToken = "Soul of a Tempest",
-                pickupToken = "Gain <style=cIsUtility>10 Boon of the Tempest</style> and <style=cDeath>10 Curse of the Tempest</style> on use.",
-                descriptionToken = "Gain <style=cIsUtility>10 Boon of the Tempest</style> and <style=cDeath>10 Curse of the Tempest</style> on use.",
-                loreToken = "You just had to go and use that damned thing ten times, didn't you?/n -Octavius VII",
+                nameToken = "LUNAR_ORB_NAME_TOKEN",
+                pickupToken = "LUNAR_ORB_PICKUP_TOKEN",
+                descriptionToken = "LUNAR_ORB_DESCRIPITON_TOKEN",
+                loreToken = "LUNAR_ORB_LORE_TOKEN",
                 canDrop = true,
                 enigmaCompatible = true
             };
@@ -132,7 +151,7 @@ namespace AffixGen
                 if (VictimMaster.IsDeadAndOutOfLivesServer() && AttackerInventory.GetItemCount(PaleOrbAffliction.PaleOrbAfflictionIndex) > 0)
                 {
                     int BoonCount = AttackerInventory.GetItemCount(PaleOrbAffliction.PaleOrbAfflictionIndex);
-                    int BoonRoll = new Random().Next(100) + 1;
+                    int BoonRoll = UnityEngine.Random.Range(1, 100);
                     if (BoonCount < BoonRoll) { }
                     else if (VictimBody.HasBuff(BuffIndex.AffixBlue))
                     {
