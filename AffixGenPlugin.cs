@@ -1,4 +1,5 @@
 ﻿using BepInEx;
+using BepInEx.Configuration;
 using R2API;
 using R2API.Utils;
 using RoR2;
@@ -23,8 +24,18 @@ namespace AffixGen
         private const string ModName = "AffixGen";
         private const string ModGuid = "com.RicoValdezio.AffixGen";
 
+        internal static ConfigEntry<float> BoonValue;
+        internal static ConfigEntry<float> CurseValue;
+        internal static ConfigEntry<int> MaxStacks;
+        public static AffixGen Instance;
+
         private void Awake()
         {
+            if (Instance == null)
+            {
+                Instance = this;
+            }
+
             using (System.IO.Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("AffixGen.affixgen"))
             {
                 AssetBundle bundle = AssetBundle.LoadFromStream(stream);
@@ -32,6 +43,7 @@ namespace AffixGen
                 ResourcesAPI.AddProvider(provider);
             }
 
+            AffixGenConfig.Init();
             PaleOrbEquip.Init();
             LunarOrbEquip.Init();
             PaleOrbAffliction.Init();
@@ -42,7 +54,12 @@ namespace AffixGen
 
     internal class AffixGenConfig
     {
-
+        internal static void Init()
+        {
+            AffixGen.BoonValue = AffixGen.Instance.Config.Bind<float>("MainSettings", "BoonValuePercent", 1f, "% Chance Gain from each Boon");
+            AffixGen.CurseValue = AffixGen.Instance.Config.Bind<float>("MainSettings", "CurseValuePercent", 1f, "% Chance Gain from each Curse");
+            AffixGen.MaxStacks = AffixGen.Instance.Config.Bind<int>("MainSettings", "MaxStacks", 100, "Maximum Stacks of Both Boons and Curses");
+        }
     }
 
     internal class PaleOrbEquip
@@ -128,14 +145,14 @@ namespace AffixGen
         {
             CharacterBody Body = self.characterBody;
             Inventory PlayerInventory = Body.inventory;
-            if (equipmentIndex == PaleOrbEquip.PaleOrbEquipmentIndex && PlayerInventory.GetItemCount(PaleOrbAffliction.PaleOrbAfflictionIndex) < 100)
+            if (equipmentIndex == PaleOrbEquip.PaleOrbEquipmentIndex && PlayerInventory.GetItemCount(PaleOrbAffliction.PaleOrbAfflictionIndex) < AffixGen.MaxStacks.Value)
             {
                 PlayerInventory.GiveItem(PaleOrbAffliction.PaleOrbAfflictionIndex, 1);
                 return true;
             }
-            else if (equipmentIndex == LunarOrbEquip.LunarOrbEquipmentIndex && PlayerInventory.GetItemCount(PaleOrbAffliction.PaleOrbAfflictionIndex) < 100)
+            else if (equipmentIndex == LunarOrbEquip.LunarOrbEquipmentIndex && PlayerInventory.GetItemCount(PaleOrbAffliction.PaleOrbAfflictionIndex) < AffixGen.MaxStacks.Value)
             {
-                int GiveAmount = Math.Min(100 - PlayerInventory.GetItemCount(PaleOrbAffliction.PaleOrbAfflictionIndex), 10);
+                int GiveAmount = Math.Min(AffixGen.MaxStacks.Value - PlayerInventory.GetItemCount(PaleOrbAffliction.PaleOrbAfflictionIndex), 10);
                 PlayerInventory.GiveItem(PaleOrbAffliction.PaleOrbAfflictionIndex, GiveAmount);
                 PlayerInventory.GiveItem(LunarOrbAffliction.LunarOrbAfflictionIndex, GiveAmount);
                 return true;
@@ -155,8 +172,9 @@ namespace AffixGen
             if (VictimMaster.IsDeadAndOutOfLivesServer() && AttackerInventory.GetItemCount(PaleOrbAffliction.PaleOrbAfflictionIndex) > 0)
             {
                 int BoonCount = AttackerInventory.GetItemCount(PaleOrbAffliction.PaleOrbAfflictionIndex);
-                int BoonRoll = UnityEngine.Random.Range(1, 100);
-                if (BoonCount < BoonRoll) { }
+                float BoonCountValue = BoonCount * AffixGen.BoonValue.Value;
+                float BoonRoll = (float)UnityEngine.Random.Range(1, 100);
+                if (BoonCountValue < BoonRoll) { }
                 else if (VictimBody.HasBuff(BuffIndex.AffixBlue))
                 {
                     ClearPaleAffliction(AttackerBody);
@@ -195,7 +213,8 @@ namespace AffixGen
             if (VictimInventory.GetItemCount(LunarOrbAffliction.LunarOrbAfflictionIndex) > 0 && AttackerBody.isElite)
             {
                 int CurseCount = AttackerInventory.GetItemCount(LunarOrbAffliction.LunarOrbAfflictionIndex);
-                float CursePercent = CurseCount / 100;
+                float CurseCountValue = CurseCount * AffixGen.CurseValue.Value;
+                float CursePercent = CurseCountValue / 100;
                 DamageInfo EliteBonusDamage = new DamageInfo
                 {
                     damage = damageInfo.damage * CursePercent,
@@ -227,14 +246,18 @@ namespace AffixGen
 
         internal static void Init()
         {
+            R2API.AssetPlus.Languages.AddToken("PALE_BOON_NAME_TOKEN", "Boon of the Tempest");
+            R2API.AssetPlus.Languages.AddToken("PALE_BOON_PICKUP_TOKEN", "Grants <style=cIsUtility>" + (AffixGen.BoonValue.Value).ToString() + "%</style> chance to capture an element.");
+            R2API.AssetPlus.Languages.AddToken("PALE_BOON_DESCRIPITON_TOKEN", "Grants <style=cIsUtility>" + (AffixGen.BoonValue.Value).ToString() + "%</style> chance to capture an element.");
+
             ItemDef PaleOrbAfflictionDef = new ItemDef
             {
-                name = "PaleOrbAffliction",
+                name = "PALE_BOON_NAME_TOKEN",
                 pickupModelPath = null,
                 pickupIconPath = "@AffixGen:Assets/PaleOrb_Affliction.png",
-                nameToken = "Boon of the Tempest",
-                pickupToken = "Grants <style=cIsUtility>1%</style> chance to capture an element.",
-                descriptionToken = "Grants <style=cIsUtility>1%</style> chance to capture an element.",
+                nameToken = "PALE_BOON_NAME_TOKEN",
+                pickupToken = "PALE_BOON_PICKUP_TOKEN",
+                descriptionToken = "PALE_BOON_DESCRIPITON_TOKEN",
                 loreToken = null,
                 tier = ItemTier.NoTier
             };
@@ -253,14 +276,18 @@ namespace AffixGen
 
         internal static void Init()
         {
+            R2API.AssetPlus.Languages.AddToken("PALE_CURSE_NAME_TOKEN", "Curse of the Tempest");
+            R2API.AssetPlus.Languages.AddToken("PALE_CURSE_PICKUP_TOKEN", "Grants <style=cDeath>" + (AffixGen.CurseValue.Value).ToString() + "% weakness to elites</style>.");
+            R2API.AssetPlus.Languages.AddToken("PALE_CURSE_DESCRIPITON_TOKEN", "Grants <style=cDeath>" + (AffixGen.CurseValue.Value).ToString() + "% weakness to elites</style>.");
+
             ItemDef LunarOrbAfflictionDef = new ItemDef
             {
-                name = "LunarOrbAffliction",
+                name = "PALE_CURSE_NAME_TOKEN",
                 pickupModelPath = null,
                 pickupIconPath = "@AffixGen:Assets/LunarOrb_Affliction.png",
-                nameToken = "Curse of the Tempest",
-                pickupToken = "<style=cDeath>Grants 1% weakness to elites</style>.",
-                descriptionToken = "<style=cDeath>Grants 1% weakness to elites</style>.",
+                nameToken = "PALE_CURSE_NAME_TOKEN",
+                pickupToken = "PALE_CURSE_PICKUP_TOKEN",
+                descriptionToken = "PALE_CURSE_DESCRIPITON_TOKEN",
                 loreToken = null,
                 tier = ItemTier.NoTier
             };
