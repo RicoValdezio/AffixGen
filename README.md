@@ -8,6 +8,7 @@ By Default:
 
 Changelog
 ------------
+1.1.3 - Fixed a bug that was causing a bunch of issues
 1.1.2 - Fixed a bug with Rex and DoT type damage
 1.1.1 - Fixed bug that may cause global invincibility
 1.1.0 - Added Configuration
