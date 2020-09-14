@@ -22,6 +22,7 @@ namespace AffixGen
             if (Instance == null) Instance = this;
             //RegisterAssetBundleProvider();
             ConfigMaster.Init();
+            BaseAffixEquip.Init();
         }
 
         private static void RegisterAssetBundleProvider()
