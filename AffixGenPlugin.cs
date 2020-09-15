@@ -23,6 +23,7 @@ namespace AffixGen
             //RegisterAssetBundleProvider();
             ConfigMaster.Init();
             BaseAffixEquip.Init();
+            LunarAffixEquip.Init();
         }
 
         private static void RegisterAssetBundleProvider()

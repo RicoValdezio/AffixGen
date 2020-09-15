@@ -1,0 +1,42 @@
+﻿using R2API;
+using RoR2;
+using System;
+
+namespace AffixGen
+{
+    class LunarAffixEquip
+    {
+        internal static ItemIndex ItemIndex;
+
+        internal static void Init()
+        {
+            RegisterTokens();
+            RegisterEquipment();
+        }
+
+        private static void RegisterTokens()
+        {
+            LanguageAPI.Add("LUNAR_AFFIX_NAME", "Tempest in a Bottle");
+            LanguageAPI.Add("LUNAR_AFFIX_PICK", "Capture the most recent affix you were hit by, but soften your senses");
+            LanguageAPI.Add("LUNAR_AFFIX_DESC", "Capture the most recent affix you were hit by for the rest of your life, but suffer a 10% increase to all damage you take per capture." + Environment.NewLine +
+                                                "The severity of the curse can be temporarily reduced by obtaining the affix via Wake of Vultures or the Elite Equipment.");
+            string longLore = "There's a storm brewing..." + Environment.NewLine +
+                              "Five weeks we've been lost at seas and I'm telling you something," + Environment.NewLine +
+                              "There's a storm brewing..." + Environment.NewLine +
+                              "Five days since we've run out of food and the men are starving," + Environment.NewLine +
+                              "There's a storm brewing..." + Environment.NewLine +
+                              "Five hours since the birds all flew away and the men are worried," + Environment.NewLine +
+                              "There's a storm brewing." + Environment.NewLine +
+                              "Five minutes since the first clap of thunder and the men a crying out," + Environment.NewLine +
+                              "There's a storm brewing!" + Environment.NewLine +
+                              "Five seconds since the hull was ripped to shreds and now I realize," + Environment.NewLine +
+                              "There's a storm brewing...";
+            LanguageAPI.Add("LUNAR_AFFIX_LORE", longLore);
+        }
+
+        private static void RegisterEquipment()
+        {
+
+        }
+    }
+}
