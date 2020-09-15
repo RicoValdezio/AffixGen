@@ -17,7 +17,7 @@ namespace AffixGen
 
         private List<AffixTracker> affixTrackers;
         internal int curseCount;
-        internal float curseMultiplier;
+        internal static float curseMultiplier;
         private CharacterBody trackerBody;
 
         private void OnEnable()
@@ -56,6 +56,8 @@ namespace AffixGen
                 }
             };
             trackerBody = gameObject.GetComponent<CharacterBody>();
+            curseCount = 0;
+
             On.RoR2.HealthComponent.TakeDamage += HealthComponent_TakeCurseDamage;
             On.RoR2.EquipmentSlot.PerformEquipmentAction += EquipmentSlot_PerformEquipmentAction;
             On.RoR2.CharacterBody.AddTimedBuff += CharacterBody_AddTimedBuff;

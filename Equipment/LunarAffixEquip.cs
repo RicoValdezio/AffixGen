@@ -6,7 +6,7 @@ namespace AffixGen
 {
     class LunarAffixEquip
     {
-        internal static ItemIndex ItemIndex;
+        internal static EquipmentIndex index;
 
         internal static void Init()
         {

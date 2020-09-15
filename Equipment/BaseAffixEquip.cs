@@ -6,7 +6,7 @@ namespace AffixGen
 {
     class BaseAffixEquip
     {
-        internal static ItemIndex ItemIndex;
+        internal static EquipmentIndex index;
 
         internal static void Init()
         {

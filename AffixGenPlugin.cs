@@ -10,12 +10,12 @@ namespace AffixGen
     [R2APISubmoduleDependency(new string[] { "ItemAPI", "ResourcesAPI", "LanguageAPI" })]
     [BepInPlugin(ModGuid, ModName, ModVer)]
     [NetworkCompatibility(CompatibilityLevel.EveryoneMustHaveMod, VersionStrictness.EveryoneNeedSameModVersion)]
-    public class AffixGen : BaseUnityPlugin
+    public class AffixGenPlugin : BaseUnityPlugin
     {
         private const string ModVer = "2.0.0";
         private const string ModName = "AffixGen";
         private const string ModGuid = "com.RicoValdezio.AffixGen";
-        public static AffixGen Instance;
+        public static AffixGenPlugin Instance;
 
         private void Awake()
         {
