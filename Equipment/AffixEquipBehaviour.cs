@@ -13,12 +13,14 @@ namespace AffixGen
             internal EquipmentIndex equipmentIndex;
             internal bool isActive, isStageLock, isCurseLock, isHeld, isVultured;
             internal float vultureTimeLeft;
+            internal int loopsRequired;
         }
 
         private List<AffixTracker> affixTrackers;
         internal int curseCount;
         internal static float curseMultiplier;
         private CharacterBody trackerBody;
+        private BuffIndex mostRecentAttackIndex;
 
         private void OnEnable()
         {
@@ -46,19 +48,21 @@ namespace AffixGen
                 {
                     eliteIndex = EliteIndex.Poison,
                     buffIndex = BuffIndex.AffixPoison,
-                    equipmentIndex = EquipmentIndex.AffixPoison
+                    equipmentIndex = EquipmentIndex.AffixPoison,
+                    loopsRequired = 1
                 },
                 new AffixTracker //Ghost
                 {
                     eliteIndex = EliteIndex.Haunted,
                     buffIndex = BuffIndex.AffixHaunted,
-                    equipmentIndex = EquipmentIndex.AffixHaunted
+                    equipmentIndex = EquipmentIndex.AffixHaunted,
+                    loopsRequired = 1
                 }
             };
             trackerBody = gameObject.GetComponent<CharacterBody>();
             curseCount = 0;
 
-            On.RoR2.HealthComponent.TakeDamage += HealthComponent_TakeCurseDamage;
+            On.RoR2.HealthComponent.TakeDamage += HealthComponent_TakeDamage;
             On.RoR2.EquipmentSlot.PerformEquipmentAction += EquipmentSlot_PerformEquipmentAction;
             On.RoR2.CharacterBody.AddTimedBuff += CharacterBody_AddTimedBuff;
         }
@@ -115,12 +119,29 @@ namespace AffixGen
             }
         }
 
-        private void HealthComponent_TakeCurseDamage(On.RoR2.HealthComponent.orig_TakeDamage orig, HealthComponent self, DamageInfo damageInfo)
+        private void HealthComponent_TakeDamage(On.RoR2.HealthComponent.orig_TakeDamage orig, HealthComponent self, DamageInfo damageInfo)
         {
             //Inject the extra damage if there's curses
             if (self.body == trackerBody)
             {
                 damageInfo.damage *= 1 + (curseMultiplier * curseCount);
+            }
+
+            //Capture the most recent affix if it was an elite (only the first, just in case)
+            if (damageInfo.attacker && damageInfo.attacker.GetComponent<CharacterBody>())
+            {
+                CharacterBody attackerBody = damageInfo.attacker.GetComponent<CharacterBody>();
+                if (attackerBody.isElite)
+                {
+                    foreach(AffixTracker tracker in affixTrackers)
+                    {
+                        if (attackerBody.HasBuff(tracker.buffIndex))
+                        {
+                            mostRecentAttackIndex = tracker.buffIndex;
+                            break;
+                        }
+                    }
+                }
             }
             orig(self, damageInfo);
         }
@@ -130,7 +151,38 @@ namespace AffixGen
             if (self.characterBody == trackerBody)
             {
                 //BaseEquip
+                if(equipmentIndex == BaseAffixEquip.index)
+                {
+                    //If there's an affix left to give this stage, give it and destroy the equipment
+                    foreach(AffixTracker tracker in affixTrackers)
+                    {
+                        if (!tracker.isStageLock && tracker.loopsRequired <= Run.instance.loopClearCount)
+                        {
+                            tracker.isStageLock = true;
+                            trackerBody.AddBuff(tracker.buffIndex);
+                            trackerBody.inventory.SetEquipmentIndex(EquipmentIndex.None);
+                            return true;
+                        }
+                    }
+                    //Else do nothing and keep the equipment
+                    return true;
+                }
                 //LunarEquip
+                if(equipmentIndex == LunarAffixEquip.index)
+                {
+                    //If the most recent affix was one you don't have yet, add it
+                    foreach (AffixTracker tracker in affixTrackers)
+                    {
+                        if (!tracker.isCurseLock && tracker.buffIndex == mostRecentAttackIndex)
+                        {
+                            tracker.isCurseLock = true;
+                            trackerBody.AddBuff(tracker.buffIndex);
+                            return true;
+                        }
+                    }
+                    //Else do nothing and keep the equipment
+                    return true;
+                }
             }
             return orig(self, equipmentIndex);
         }
