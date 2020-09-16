@@ -24,7 +24,26 @@ namespace AffixGen
 
         private static void RegisterEquipment()
         {
+            EquipmentDef equipmentDef = new EquipmentDef
+            {
+                name = "UntappedPotential",
+                nameToken = "BASE_AFFIX_NAME",
+                pickupToken = "BASE_AFFIX_PICK",
+                descriptionToken = "BASE_AFFIX_DESC",
+                loreToken = "BASE_AFFIX_LORE",
+                isBoss = false,
+                isLunar = false,
+                enigmaCompatible = true,
+                canDrop = true,
+                cooldown = 30f,
+                pickupIconPath = "",
+                pickupModelPath = ""
+            };
 
+            ItemDisplayRuleDict ruleDict = new ItemDisplayRuleDict();
+
+            CustomEquipment equipment = new CustomEquipment(equipmentDef, ruleDict);
+            index = ItemAPI.Add(equipment);
         }
     }
 }

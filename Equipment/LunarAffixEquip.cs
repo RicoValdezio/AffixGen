@@ -16,10 +16,10 @@ namespace AffixGen
 
         private static void RegisterTokens()
         {
-            LanguageAPI.Add("LUNAR_AFFIX_NAME", "Tempest in a Bottle");
+            LanguageAPI.Add("LUNAR_AFFIX_NAME", "Tempestuous Rage");
             LanguageAPI.Add("LUNAR_AFFIX_PICK", "Capture the most recent affix you were hit by, but soften your senses");
             LanguageAPI.Add("LUNAR_AFFIX_DESC", "Capture the most recent affix you were hit by for the rest of your life, but suffer a 10% increase to all damage you take per capture." + Environment.NewLine +
-                                                "The severity of the curse can be temporarily reduced by obtaining the affix via Wake of Vultures or the Elite Equipment.");
+                                                "The severity of the curse can be temporarily reduced by obtaining the affix via Untapped Potential, Wake of Vultures, or the Elite Equipment.");
             string longLore = "There's a storm brewing..." + Environment.NewLine +
                               "Five weeks we've been lost at seas and I'm telling you something," + Environment.NewLine +
                               "There's a storm brewing..." + Environment.NewLine +
@@ -36,7 +36,26 @@ namespace AffixGen
 
         private static void RegisterEquipment()
         {
+            EquipmentDef equipmentDef = new EquipmentDef
+            {
+                name = "TempestuousRage",
+                nameToken = "LUNAR_AFFIX_NAME",
+                pickupToken = "LUNAR_AFFIX_PICK",
+                descriptionToken = "LUNAR_AFFIX_DESC",
+                loreToken = "LUNAR_AFFIX_LORE",
+                isBoss = false,
+                isLunar = true,
+                enigmaCompatible = false,
+                canDrop = true,
+                cooldown = 30f,
+                pickupIconPath = "",
+                pickupModelPath = ""
+            };
 
+            ItemDisplayRuleDict ruleDict = new ItemDisplayRuleDict();
+
+            CustomEquipment equipment = new CustomEquipment(equipmentDef, ruleDict);
+            index = ItemAPI.Add(equipment);
         }
     }
 }

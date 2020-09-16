@@ -1,6 +1,7 @@
 ﻿using BepInEx;
 using R2API;
 using R2API.Utils;
+using RoR2;
 using System.Reflection;
 using UnityEngine;
 
@@ -24,6 +25,8 @@ namespace AffixGen
             ConfigMaster.Init();
             BaseAffixEquip.Init();
             LunarAffixEquip.Init();
+
+            On.RoR2.CharacterBody.Start += CharacterBody_Start;
         }
 
         private static void RegisterAssetBundleProvider()
@@ -33,6 +36,16 @@ namespace AffixGen
                 AssetBundle bundle = AssetBundle.LoadFromStream(stream);
                 AssetBundleResourcesProvider provider = new AssetBundleResourcesProvider("@AffixGen", bundle);
                 ResourcesAPI.AddProvider(provider);
+            }
+        }
+
+        private void CharacterBody_Start(On.RoR2.CharacterBody.orig_Start orig, CharacterBody self)
+        {
+            orig(self);
+            //Give all bodies a tracker component on start, even if they don't have the equip
+            if (!self.gameObject.GetComponent<AffixEquipBehaviour>())
+            {
+                self.gameObject.AddComponent<AffixEquipBehaviour>();
             }
         }
     }
