@@ -90,14 +90,14 @@ namespace AffixGen
                 }
 
                 //Check if the buff is currently from held item
-                if (trackerBody.equipmentSlot.equipmentIndex == tracker.equipmentIndex)
-                {
-                    tracker.isHeld = true;
-                }
-                else
-                {
-                    tracker.isHeld = false;
-                }
+                //if (trackerBody.inventory.currentEquipmentIndex == tracker.equipmentIndex)
+                //{
+                //    tracker.isHeld = true;
+                //}
+                //else
+                //{
+                //    tracker.isHeld = false;
+                //}
 
                 //Check is the buff is currently from Wake of Vultures
                 if (tracker.isVultured)

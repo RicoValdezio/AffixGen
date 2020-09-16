@@ -26,7 +26,7 @@ namespace AffixGen
             BaseAffixEquip.Init();
             LunarAffixEquip.Init();
 
-            On.RoR2.CharacterBody.Start += CharacterBody_Start;
+            On.RoR2.CharacterBody.OnInventoryChanged += CharacterBody_OnInventoryChanged;
         }
 
         private static void RegisterAssetBundleProvider()
@@ -39,11 +39,10 @@ namespace AffixGen
             }
         }
 
-        private void CharacterBody_Start(On.RoR2.CharacterBody.orig_Start orig, CharacterBody self)
+        private void CharacterBody_OnInventoryChanged(On.RoR2.CharacterBody.orig_OnInventoryChanged orig, CharacterBody self)
         {
             orig(self);
-            //Give all bodies a tracker component on start, even if they don't have the equip
-            if (!self.gameObject.GetComponent<AffixEquipBehaviour>())
+            if (self.teamComponent.teamIndex == TeamIndex.Player && !self.gameObject.GetComponent<AffixEquipBehaviour>())
             {
                 self.gameObject.AddComponent<AffixEquipBehaviour>();
             }
