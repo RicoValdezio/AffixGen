@@ -80,6 +80,17 @@ namespace AffixGen
 
             foreach (AffixTracker tracker in affixTrackers)
             {
+                //If the buff is StageLock or CurseLock, give it to me
+                if(tracker.isCurseLock || tracker.isStageLock)
+                {
+                    trackerBody.AddBuff(tracker.buffIndex);
+                }
+                //If neither Lock, and also not Held nor Vulture, take it away
+                else if(!tracker.isHeld && !tracker.isVultured)
+                {
+                    trackerBody.RemoveBuff(tracker.buffIndex);
+                }
+
                 //Check is the buff is currently from Wake of Vultures
                 if (tracker.isVultured)
                 {
@@ -162,7 +173,6 @@ namespace AffixGen
                         {
                             tracker.isStageLock = true;
                             trackerBody.inventory.SetEquipmentIndex(EquipmentIndex.None);
-                            trackerBody.AddBuff(tracker.buffIndex);
                             return false;
                         }
                     }
@@ -179,7 +189,6 @@ namespace AffixGen
                         if (tracker.buffIndex == mostRecentAttackIndex)
                         {
                             tracker.isCurseLock = true;
-                            trackerBody.AddBuff(tracker.buffIndex);
                             return true;
                         }
                     }
