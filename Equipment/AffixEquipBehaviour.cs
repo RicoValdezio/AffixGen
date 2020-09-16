@@ -1,6 +1,5 @@
 ﻿using RoR2;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 namespace AffixGen
@@ -69,6 +68,8 @@ namespace AffixGen
             On.RoR2.EquipmentSlot.PerformEquipmentAction += EquipmentSlot_PerformEquipmentAction;
             On.RoR2.CharacterBody.AddTimedBuff += CharacterBody_AddTimedBuff;
             On.RoR2.Run.BeginStage += Run_BeginStage;
+            On.RoR2.CharacterBody.OnEquipmentGained += CharacterBody_OnEquipmentGained;
+            On.RoR2.CharacterBody.OnEquipmentLost += CharacterBody_OnEquipmentLost;
         }
 
         private void Update()
@@ -83,7 +84,7 @@ namespace AffixGen
                     tracker.isActive = true;
                 }
                 //If it's not active, see if it should be and set it (This is the ONLY place that buffs are given!)
-                else if(tracker.isCurseLock || tracker.isStageLock || tracker.isVultured || tracker.isHeld)
+                else if (tracker.isCurseLock || tracker.isStageLock || tracker.isVultured || tracker.isHeld)
                 {
                     trackerBody.AddBuff(tracker.buffIndex);
                 }
@@ -93,15 +94,15 @@ namespace AffixGen
                     tracker.isActive = false;
                 }
 
-                //Check if the buff is currently from held item
-                if (trackerMaster.inventory.currentEquipmentIndex == tracker.equipmentIndex)
-                {
-                    tracker.isHeld = true;
-                }
-                else
-                {
-                    tracker.isHeld = false;
-                }
+                //Check if the buff is currently from held item (Currently disabled, not sure why it's nullref-ing)
+                //if (trackerMaster.inventory.currentEquipmentIndex == tracker.equipmentIndex)
+                //{
+                //    tracker.isHeld = true;
+                //}
+                //else
+                //{
+                //    tracker.isHeld = false;
+                //}
 
                 //Check is the buff is currently from Wake of Vultures
                 if (tracker.isVultured)
@@ -158,7 +159,7 @@ namespace AffixGen
                 CharacterBody attackerBody = damageInfo.attacker.GetComponent<CharacterBody>();
                 if (attackerBody.isElite)
                 {
-                    foreach(AffixTracker tracker in affixTrackers)
+                    foreach (AffixTracker tracker in affixTrackers)
                     {
                         if (attackerBody.HasBuff(tracker.buffIndex))
                         {
@@ -176,10 +177,10 @@ namespace AffixGen
             if (self.characterBody == trackerBody)
             {
                 //BaseEquip
-                if(equipmentIndex == BaseAffixEquip.index)
+                if (equipmentIndex == BaseAffixEquip.index)
                 {
                     //If there's an affix left to give this stage, give it and destroy the equipment
-                    foreach(AffixTracker tracker in affixTrackers)
+                    foreach (AffixTracker tracker in affixTrackers)
                     {
                         if (!tracker.isStageLock && tracker.loopsRequired <= Run.instance.loopClearCount)
                         {
@@ -193,7 +194,7 @@ namespace AffixGen
                     return true;
                 }
                 //LunarEquip
-                if(equipmentIndex == LunarAffixEquip.index)
+                if (equipmentIndex == LunarAffixEquip.index)
                 {
                     //If the most recent affix was one you don't have yet, add it
                     foreach (AffixTracker tracker in affixTrackers)
@@ -238,6 +239,36 @@ namespace AffixGen
                 tracker.isVultured = false;
                 tracker.vultureTimeLeft = 0f;
             }
+        }
+
+        private void CharacterBody_OnEquipmentGained(On.RoR2.CharacterBody.orig_OnEquipmentGained orig, CharacterBody self, EquipmentDef equipmentDef)
+        {
+            if (self == trackerBody)
+            {
+                foreach (AffixTracker tracker in affixTrackers)
+                {
+                    if (equipmentDef.equipmentIndex == tracker.equipmentIndex)
+                    {
+                        tracker.isHeld = true;
+                    }
+                }
+            }
+            orig(self, equipmentDef);
+        }
+
+        private void CharacterBody_OnEquipmentLost(On.RoR2.CharacterBody.orig_OnEquipmentLost orig, CharacterBody self, EquipmentDef equipmentDef)
+        {
+            if (self == trackerBody)
+            {
+                foreach (AffixTracker tracker in affixTrackers)
+                {
+                    if (equipmentDef.equipmentIndex == tracker.equipmentIndex)
+                    {
+                        tracker.isHeld = false;
+                    }
+                }
+            }
+            orig(self, equipmentDef);
         }
     }
 }
