@@ -25,8 +25,6 @@ namespace AffixGen
             ConfigMaster.Init();
             BaseAffixEquip.Init();
             LunarAffixEquip.Init();
-
-            On.RoR2.CharacterBody.OnInventoryChanged += CharacterBody_OnInventoryChanged;
         }
 
         private static void RegisterAssetBundleProvider()
@@ -36,15 +34,6 @@ namespace AffixGen
                 AssetBundle bundle = AssetBundle.LoadFromStream(stream);
                 AssetBundleResourcesProvider provider = new AssetBundleResourcesProvider("@AffixGen", bundle);
                 ResourcesAPI.AddProvider(provider);
-            }
-        }
-
-        private void CharacterBody_OnInventoryChanged(On.RoR2.CharacterBody.orig_OnInventoryChanged orig, CharacterBody self)
-        {
-            orig(self);
-            if (self.teamComponent.teamIndex == TeamIndex.Player && !self.gameObject.GetComponent<AffixEquipBehaviour>())
-            {
-                self.gameObject.AddComponent<AffixEquipBehaviour>();
             }
         }
     }

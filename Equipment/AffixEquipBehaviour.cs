@@ -19,6 +19,7 @@ namespace AffixGen
         private List<AffixTracker> affixTrackers;
         internal int curseCount;
         internal static float curseMultiplier;
+        private CharacterMaster trackerMaster;
         private CharacterBody trackerBody;
         private BuffIndex mostRecentAttackIndex;
 
@@ -59,7 +60,7 @@ namespace AffixGen
                     loopsRequired = 1
                 }
             };
-            trackerBody = gameObject.GetComponent<CharacterBody>();
+            trackerMaster = gameObject.GetComponent<CharacterMaster>();
             curseCount = 0;
 
             On.RoR2.HealthComponent.TakeDamage += HealthComponent_TakeDamage;
@@ -79,7 +80,7 @@ namespace AffixGen
                     tracker.isActive = true;
                 }
                 //If it's not active, see if it should be and set it (This is the ONLY place that buffs are given!)
-                else if((tracker.isCurseLock || tracker.isStageLock || tracker.isVultured || tracker.isHeld) && !tracker.isActive)
+                else if(tracker.isCurseLock || tracker.isStageLock || tracker.isVultured || tracker.isHeld)
                 {
                     trackerBody.AddBuff(tracker.buffIndex);
                 }
@@ -210,6 +211,7 @@ namespace AffixGen
                     }
                 }
             }
+            orig(self, buffType, duration);
         }
 
         private void Run_BeginStage(On.RoR2.Run.orig_BeginStage orig, Run self)
@@ -219,6 +221,7 @@ namespace AffixGen
             {
                 tracker.isStageLock = false;
             }
+            trackerBody = trackerMaster.GetBody();
         }
     }
 }
