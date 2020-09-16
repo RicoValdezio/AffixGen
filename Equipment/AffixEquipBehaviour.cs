@@ -65,6 +65,7 @@ namespace AffixGen
             On.RoR2.HealthComponent.TakeDamage += HealthComponent_TakeDamage;
             On.RoR2.EquipmentSlot.PerformEquipmentAction += EquipmentSlot_PerformEquipmentAction;
             On.RoR2.CharacterBody.AddTimedBuff += CharacterBody_AddTimedBuff;
+            On.RoR2.Run.BeginStage += Run_BeginStage;
         }
 
         private void Update()
@@ -76,6 +77,16 @@ namespace AffixGen
                 if (trackerBody.HasBuff(tracker.buffIndex))
                 {
                     tracker.isActive = true;
+                }
+                //If it's not active, see if it should be and set it (This is the ONLY place that buffs are given!)
+                else if((tracker.isCurseLock || tracker.isStageLock || tracker.isVultured || tracker.isHeld) && !tracker.isActive)
+                {
+                    trackerBody.AddBuff(tracker.buffIndex);
+                }
+                //If it shouldn't be active and isn't, set Active to false
+                else
+                {
+                    tracker.isActive = false;
                 }
 
                 //Check if the buff is currently from held item
@@ -159,7 +170,6 @@ namespace AffixGen
                         if (!tracker.isStageLock && tracker.loopsRequired <= Run.instance.loopClearCount)
                         {
                             tracker.isStageLock = true;
-                            trackerBody.AddBuff(tracker.buffIndex);
                             trackerBody.inventory.SetEquipmentIndex(EquipmentIndex.None);
                             return true;
                         }
@@ -176,7 +186,6 @@ namespace AffixGen
                         if (!tracker.isCurseLock && tracker.buffIndex == mostRecentAttackIndex)
                         {
                             tracker.isCurseLock = true;
-                            trackerBody.AddBuff(tracker.buffIndex);
                             return true;
                         }
                     }
@@ -200,6 +209,15 @@ namespace AffixGen
                         tracker.isVultured = true;
                     }
                 }
+            }
+        }
+
+        private void Run_BeginStage(On.RoR2.Run.orig_BeginStage orig, Run self)
+        {
+            orig(self);
+            foreach (AffixTracker tracker in affixTrackers)
+            {
+                tracker.isStageLock = false;
             }
         }
     }
