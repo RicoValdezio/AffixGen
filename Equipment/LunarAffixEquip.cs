@@ -47,9 +47,9 @@ namespace AffixGen
                 isLunar = true,
                 enigmaCompatible = false,
                 canDrop = true,
-                cooldown = 30f,
-                pickupIconPath = "",
-                pickupModelPath = ""
+                cooldown = 60f,
+                pickupIconPath = "@AffixGen:Assets/AffixGen/AffixLunar.png",
+                pickupModelPath = "@AffixGen:Assets/AffixGen/LunarAffix.prefab"
             };
 
             ItemDisplayRuleDict ruleDict = new ItemDisplayRuleDict();

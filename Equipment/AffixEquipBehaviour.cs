@@ -247,6 +247,7 @@ namespace AffixGen
             {
                 foreach (AffixTracker tracker in affixTrackers)
                 {
+                    //If I have the elite equip, set isHeld to true
                     if (equipmentDef.equipmentIndex == tracker.equipmentIndex)
                     {
                         tracker.isHeld = true;
@@ -262,6 +263,7 @@ namespace AffixGen
             {
                 foreach (AffixTracker tracker in affixTrackers)
                 {
+                    //If I had the elite equip, set isHeld to false
                     if (equipmentDef.equipmentIndex == tracker.equipmentIndex)
                     {
                         tracker.isHeld = false;

@@ -5,6 +5,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="affixgen" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="affixgen" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Reference Include="Assembly-CSharp">
       <HintPath>..\..\..\..\Documents\Libs\Assembly-CSharp.dll</HintPath>
     </Reference>

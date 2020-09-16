@@ -21,7 +21,7 @@ namespace AffixGen
         private void Awake()
         {
             if (Instance == null) Instance = this;
-            //RegisterAssetBundleProvider();
+            RegisterAssetBundleProvider();
             ConfigMaster.Init();
             BaseAffixEquip.Init();
             LunarAffixEquip.Init();

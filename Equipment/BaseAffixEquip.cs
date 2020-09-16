@@ -33,11 +33,11 @@ namespace AffixGen
                 loreToken = "BASE_AFFIX_LORE",
                 isBoss = false,
                 isLunar = false,
-                enigmaCompatible = true,
+                enigmaCompatible = false,
                 canDrop = true,
                 cooldown = 30f,
-                pickupIconPath = "",
-                pickupModelPath = ""
+                pickupIconPath = "@AffixGen:Assets/AffixGen/AffixBase.png",
+                pickupModelPath = "@AffixGen:Assets/AffixGen/BaseAffix.prefab"
             };
 
             ItemDisplayRuleDict ruleDict = new ItemDisplayRuleDict();
