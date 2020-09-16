@@ -1,5 +1,6 @@
 ﻿using RoR2;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace AffixGen
@@ -60,6 +61,7 @@ namespace AffixGen
                     loopsRequired = 1
                 }
             };
+            ShuffleTrackers();
             trackerMaster = gameObject.GetComponent<CharacterMaster>();
             curseCount = 0;
 
@@ -71,6 +73,7 @@ namespace AffixGen
 
         private void Update()
         {
+            trackerBody = trackerMaster.GetBody();
             int tempCurseCount = 0;
             foreach (AffixTracker tracker in affixTrackers)
             {
@@ -91,14 +94,14 @@ namespace AffixGen
                 }
 
                 //Check if the buff is currently from held item
-                //if (trackerBody.inventory.currentEquipmentIndex == tracker.equipmentIndex)
-                //{
-                //    tracker.isHeld = true;
-                //}
-                //else
-                //{
-                //    tracker.isHeld = false;
-                //}
+                if (trackerMaster.inventory.currentEquipmentIndex == tracker.equipmentIndex)
+                {
+                    tracker.isHeld = true;
+                }
+                else
+                {
+                    tracker.isHeld = false;
+                }
 
                 //Check is the buff is currently from Wake of Vultures
                 if (tracker.isVultured)
@@ -120,14 +123,24 @@ namespace AffixGen
                         tempCurseCount++;
                     }
                 }
+            }
+            //Update curse count if its changed
+            if (tempCurseCount != curseCount)
+            {
+                curseCount = tempCurseCount;
+                //Post the curse level to chat (will be removed/replaced with a item/buff)
+                Chat.AddMessage("Current Curse Level is: " + curseCount.ToString());
+            }
+        }
 
-                //Update curse count if its changed
-                if (tempCurseCount != curseCount)
-                {
-                    curseCount = tempCurseCount;
-                    //Post the curse level to chat (will be removed/replaced with a item/buff)
-                    Chat.AddMessage("Current Curse Level is: " + curseCount.ToString());
-                }
+        private void ShuffleTrackers()
+        {
+            for (int i = 0; i < affixTrackers.Count; i++)
+            {
+                AffixTracker temp = affixTrackers[i];
+                int randomIndex = Random.Range(i, affixTrackers.Count);
+                affixTrackers[i] = affixTrackers[randomIndex];
+                affixTrackers[randomIndex] = temp;
             }
         }
 
@@ -175,6 +188,7 @@ namespace AffixGen
                             return true;
                         }
                     }
+                    ShuffleTrackers();
                     //Else do nothing and keep the equipment
                     return true;
                 }
@@ -184,7 +198,7 @@ namespace AffixGen
                     //If the most recent affix was one you don't have yet, add it
                     foreach (AffixTracker tracker in affixTrackers)
                     {
-                        if (!tracker.isCurseLock && tracker.buffIndex == mostRecentAttackIndex)
+                        if (tracker.buffIndex == mostRecentAttackIndex)
                         {
                             tracker.isCurseLock = true;
                             return true;
@@ -217,11 +231,13 @@ namespace AffixGen
         private void Run_BeginStage(On.RoR2.Run.orig_BeginStage orig, Run self)
         {
             orig(self);
+            //Clear the isStageLock and isVultured values
             foreach (AffixTracker tracker in affixTrackers)
             {
                 tracker.isStageLock = false;
+                tracker.isVultured = false;
+                tracker.vultureTimeLeft = 0f;
             }
-            trackerBody = trackerMaster.GetBody();
         }
     }
 }

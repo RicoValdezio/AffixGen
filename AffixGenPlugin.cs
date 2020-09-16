@@ -25,6 +25,8 @@ namespace AffixGen
             ConfigMaster.Init();
             BaseAffixEquip.Init();
             LunarAffixEquip.Init();
+
+            On.RoR2.CharacterMaster.OnBodyStart += CharacterMaster_OnBodyStart;
         }
 
         private static void RegisterAssetBundleProvider()
@@ -34,6 +36,15 @@ namespace AffixGen
                 AssetBundle bundle = AssetBundle.LoadFromStream(stream);
                 AssetBundleResourcesProvider provider = new AssetBundleResourcesProvider("@AffixGen", bundle);
                 ResourcesAPI.AddProvider(provider);
+            }
+        }
+
+        private void CharacterMaster_OnBodyStart(On.RoR2.CharacterMaster.orig_OnBodyStart orig, CharacterMaster self, CharacterBody body)
+        {
+            orig(self, body);
+            if (self.GetBody().teamComponent.teamIndex == TeamIndex.Player && !self.gameObject.GetComponent<AffixEquipBehaviour>())
+            {
+                self.gameObject.AddComponent<AffixEquipBehaviour>();
             }
         }
     }
