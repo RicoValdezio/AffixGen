@@ -11,7 +11,7 @@ namespace AffixGen
             internal EliteIndex eliteIndex;
             internal BuffIndex buffIndex;
             internal EquipmentIndex equipmentIndex;
-            internal bool isActive, isStageLock, isCurseLock, isHeld, isVultured;
+            internal bool isStageLock, isCurseLock, isHeld, isVultured;
             internal float vultureTimeLeft;
             internal int loopsRequired;
         }
@@ -74,36 +74,12 @@ namespace AffixGen
 
         private void Update()
         {
+            trackerMaster = gameObject.GetComponent<CharacterMaster>();
             trackerBody = trackerMaster.GetBody();
             int tempCurseCount = 0;
+
             foreach (AffixTracker tracker in affixTrackers)
             {
-                //Check to see if the buff is active
-                if (trackerBody.HasBuff(tracker.buffIndex))
-                {
-                    tracker.isActive = true;
-                }
-                //If it's not active, see if it should be and set it (This is the ONLY place that buffs are given!)
-                else if (tracker.isCurseLock || tracker.isStageLock || tracker.isVultured || tracker.isHeld)
-                {
-                    trackerBody.AddBuff(tracker.buffIndex);
-                }
-                //If it shouldn't be active and isn't, set Active to false
-                else
-                {
-                    tracker.isActive = false;
-                }
-
-                //Check if the buff is currently from held item (Currently disabled, not sure why it's nullref-ing)
-                //if (trackerMaster.inventory.currentEquipmentIndex == tracker.equipmentIndex)
-                //{
-                //    tracker.isHeld = true;
-                //}
-                //else
-                //{
-                //    tracker.isHeld = false;
-                //}
-
                 //Check is the buff is currently from Wake of Vultures
                 if (tracker.isVultured)
                 {
@@ -186,7 +162,8 @@ namespace AffixGen
                         {
                             tracker.isStageLock = true;
                             trackerBody.inventory.SetEquipmentIndex(EquipmentIndex.None);
-                            return true;
+                            trackerBody.AddBuff(tracker.buffIndex);
+                            return false;
                         }
                     }
                     ShuffleTrackers();
@@ -202,6 +179,7 @@ namespace AffixGen
                         if (tracker.buffIndex == mostRecentAttackIndex)
                         {
                             tracker.isCurseLock = true;
+                            trackerBody.AddBuff(tracker.buffIndex);
                             return true;
                         }
                     }
@@ -233,11 +211,17 @@ namespace AffixGen
         {
             orig(self);
             //Clear the isStageLock and isVultured values
+            trackerMaster = gameObject.GetComponent<CharacterMaster>();
+            trackerBody = trackerMaster.GetBody();
             foreach (AffixTracker tracker in affixTrackers)
             {
                 tracker.isStageLock = false;
                 tracker.isVultured = false;
                 tracker.vultureTimeLeft = 0f;
+                if (tracker.isCurseLock)
+                {
+                    trackerBody.AddBuff(tracker.buffIndex);
+                }
             }
         }
 
