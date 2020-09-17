@@ -48,7 +48,7 @@ namespace AffixGen
                 enigmaCompatible = false,
                 canDrop = true,
                 colorIndex = ColorCatalog.ColorIndex.LunarItem,
-                cooldown = 60f,
+                cooldown = 120f,
                 pickupIconPath = "@AffixGen:Assets/AffixGen/AffixLunar.png",
                 pickupModelPath = "@AffixGen:Assets/AffixGen/LunarAffix.prefab"
             };

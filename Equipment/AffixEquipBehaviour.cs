@@ -241,19 +241,25 @@ namespace AffixGen
         {
             orig(self);
             //Clear the isStageLock and isVultured values
-            trackerMaster = gameObject.GetComponent<CharacterMaster>();
-            trackerBody = trackerMaster.GetBody();
-            foreach (AffixTracker tracker in affixTrackers)
+            if (trackerMaster = gameObject.GetComponent<CharacterMaster>())
             {
-                tracker.isStageLock = false;
-                tracker.isVultured = false;
-                tracker.vultureTimeLeft = 0f;
-                if (tracker.isCurseLock)
+                trackerMaster = gameObject.GetComponent<CharacterMaster>();
+                if (trackerMaster.GetBody() != null)
                 {
-                    trackerBody.AddBuff(tracker.buffIndex);
+                    trackerBody = trackerMaster.GetBody();
+                    foreach (AffixTracker tracker in affixTrackers)
+                    {
+                        tracker.isStageLock = false;
+                        tracker.isVultured = false;
+                        tracker.vultureTimeLeft = 0f;
+                        if (tracker.isCurseLock)
+                        {
+                            trackerBody.AddBuff(tracker.buffIndex);
+                        }
+                    }
+                    currentStageLocks = 0;
                 }
             }
-            currentStageLocks = 0;
         }
 
         private void CharacterBody_OnEquipmentGained(On.RoR2.CharacterBody.orig_OnEquipmentGained orig, CharacterBody self, EquipmentDef equipmentDef)
