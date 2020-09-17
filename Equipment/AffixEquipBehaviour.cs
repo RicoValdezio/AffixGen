@@ -14,6 +14,7 @@ namespace AffixGen
             internal bool isStageLock, isCurseLock, isHeld, isVultured;
             internal float vultureTimeLeft;
             internal int loopsRequired;
+            internal string affixNameTag;
         }
 
         private List<AffixTracker> affixTrackers;
@@ -22,6 +23,8 @@ namespace AffixGen
         private CharacterMaster trackerMaster;
         private CharacterBody trackerBody;
         private BuffIndex mostRecentAttackIndex;
+        internal static int maxStageLocks;
+        internal int currentStageLocks;
 
         private void OnEnable()
         {
@@ -31,38 +34,44 @@ namespace AffixGen
                 {
                     eliteIndex = EliteIndex.Fire,
                     buffIndex = BuffIndex.AffixRed,
-                    equipmentIndex = EquipmentIndex.AffixRed
+                    equipmentIndex = EquipmentIndex.AffixRed,
+                    affixNameTag = "Fire"
                 },
                 new AffixTracker //Lightning
                 {
                     eliteIndex = EliteIndex.Lightning,
                     buffIndex = BuffIndex.AffixBlue,
-                    equipmentIndex = EquipmentIndex.AffixBlue
+                    equipmentIndex = EquipmentIndex.AffixBlue,
+                    affixNameTag = "Lightning"
                 },
                 new AffixTracker //Ice
                 {
                     eliteIndex = EliteIndex.Ice,
                     buffIndex = BuffIndex.AffixWhite,
-                    equipmentIndex = EquipmentIndex.AffixWhite
+                    equipmentIndex = EquipmentIndex.AffixWhite,
+                    affixNameTag = "Ice"
                 },
                 new AffixTracker //Poison
                 {
                     eliteIndex = EliteIndex.Poison,
                     buffIndex = BuffIndex.AffixPoison,
                     equipmentIndex = EquipmentIndex.AffixPoison,
-                    loopsRequired = 1
+                    loopsRequired = 1,
+                    affixNameTag = "Poison"
                 },
                 new AffixTracker //Ghost
                 {
                     eliteIndex = EliteIndex.Haunted,
                     buffIndex = BuffIndex.AffixHaunted,
                     equipmentIndex = EquipmentIndex.AffixHaunted,
-                    loopsRequired = 1
+                    loopsRequired = 1,
+                    affixNameTag = "Haunting"
                 }
             };
             ShuffleTrackers();
             trackerMaster = gameObject.GetComponent<CharacterMaster>();
             curseCount = 0;
+            currentStageLocks = 0;
 
             On.RoR2.HealthComponent.TakeDamage += HealthComponent_TakeDamage;
             On.RoR2.EquipmentSlot.PerformEquipmentAction += EquipmentSlot_PerformEquipmentAction;
@@ -74,50 +83,55 @@ namespace AffixGen
 
         private void Update()
         {
-            trackerMaster = gameObject.GetComponent<CharacterMaster>();
-            trackerBody = trackerMaster.GetBody();
-            int tempCurseCount = 0;
-
-            foreach (AffixTracker tracker in affixTrackers)
+            if (trackerMaster = gameObject.GetComponent<CharacterMaster>())
             {
-                //If the buff is StageLock or CurseLock, give it to me
-                if(tracker.isCurseLock || tracker.isStageLock)
+                trackerMaster = gameObject.GetComponent<CharacterMaster>();
+                if (trackerMaster.GetBody() != null)
                 {
-                    trackerBody.AddBuff(tracker.buffIndex);
-                }
-                //If neither Lock, and also not Held nor Vulture, take it away
-                else if(!tracker.isHeld && !tracker.isVultured)
-                {
-                    trackerBody.RemoveBuff(tracker.buffIndex);
-                }
+                    trackerBody = trackerMaster.GetBody();
+                    int tempCurseCount = 0;
 
-                //Check is the buff is currently from Wake of Vultures
-                if (tracker.isVultured)
-                {
-                    //Reduce the amount of time and remove flag if no time left
-                    tracker.vultureTimeLeft -= Time.deltaTime;
-                    if (tracker.vultureTimeLeft <= 0)
+                    foreach (AffixTracker tracker in affixTrackers)
                     {
-                        tracker.isVultured = false;
+                        //If the buff is StageLock or CurseLock, give it to me
+                        if (tracker.isCurseLock || tracker.isStageLock)
+                        {
+                            trackerBody.AddBuff(tracker.buffIndex);
+                        }
+                        //If neither Lock, and also not Held nor Vulture, take it away
+                        else if (!tracker.isHeld && !tracker.isVultured)
+                        {
+                            trackerBody.RemoveBuff(tracker.buffIndex);
+                        }
+
+                        //Check is the buff is currently from Wake of Vultures
+                        if (tracker.isVultured)
+                        {
+                            //Reduce the amount of time and remove flag if no time left
+                            tracker.vultureTimeLeft -= Time.deltaTime;
+                            if (tracker.vultureTimeLeft <= 0)
+                            {
+                                tracker.isVultured = false;
+                            }
+                        }
+
+                        //Calculate the current curse count
+                        if (tracker.isCurseLock)
+                        {
+                            //If its cursed and neither staged nor held nor vultured, add a curse
+                            if (!tracker.isHeld && !tracker.isStageLock && !tracker.isVultured)
+                            {
+                                tempCurseCount++;
+                            }
+                        }
+                    }
+                    //Update curse count if its changed
+                    if (tempCurseCount != curseCount)
+                    {
+                        curseCount = tempCurseCount;
+                        //Chat.AddMessage("Current Curse Level is: " + curseCount.ToString());
                     }
                 }
-
-                //Calculate the current curse count
-                if (tracker.isCurseLock)
-                {
-                    //If its cursed and neither staged nor held nor vultured, add a curse
-                    if (!tracker.isHeld && !tracker.isStageLock && !tracker.isVultured)
-                    {
-                        tempCurseCount++;
-                    }
-                }
-            }
-            //Update curse count if its changed
-            if (tempCurseCount != curseCount)
-            {
-                curseCount = tempCurseCount;
-                //Post the curse level to chat (will be removed/replaced with a item/buff)
-                Chat.AddMessage("Current Curse Level is: " + curseCount.ToString());
             }
         }
 
@@ -138,21 +152,25 @@ namespace AffixGen
             if (self.body == trackerBody)
             {
                 damageInfo.damage *= 1 + (curseMultiplier * curseCount);
-            }
 
-            //Capture the most recent affix if it was an elite (only the first, just in case)
-            if (damageInfo.attacker && damageInfo.attacker.GetComponent<CharacterBody>())
-            {
-                CharacterBody attackerBody = damageInfo.attacker.GetComponent<CharacterBody>();
-                if (attackerBody.isElite)
+                //Try and capture the affix type of the attacker/inflictor
+                foreach (AffixTracker tracker in affixTrackers)
                 {
-                    foreach (AffixTracker tracker in affixTrackers)
+                    CharacterBody testBody = null;
+                    if (damageInfo.attacker)
                     {
-                        if (attackerBody.HasBuff(tracker.buffIndex))
-                        {
-                            mostRecentAttackIndex = tracker.buffIndex;
-                            break;
-                        }
+                        testBody = damageInfo.attacker.GetComponent<CharacterBody>();
+                    }
+                    else if (damageInfo.inflictor)
+                    {
+                        testBody = damageInfo.inflictor.GetComponent<CharacterBody>();
+                    }
+
+                    //Set the curse flag if its a match
+                    if (testBody && testBody.isElite && testBody.HasBuff(tracker.buffIndex))
+                    {
+                        mostRecentAttackIndex = tracker.buffIndex;
+                        //Chat.AddMessage("Most Recent Damage Type Was : " + tracker.affixNameTag);
                     }
                 }
             }
@@ -169,10 +187,12 @@ namespace AffixGen
                     //If there's an affix left to give this stage, give it and destroy the equipment
                     foreach (AffixTracker tracker in affixTrackers)
                     {
-                        if (!tracker.isStageLock && tracker.loopsRequired <= Run.instance.loopClearCount)
+                        if (!tracker.isStageLock && tracker.loopsRequired <= Run.instance.loopClearCount && currentStageLocks < maxStageLocks)
                         {
                             tracker.isStageLock = true;
                             trackerBody.inventory.SetEquipmentIndex(EquipmentIndex.None);
+                            trackerBody.AddBuff(tracker.buffIndex);
+                            currentStageLocks++;
                             return false;
                         }
                     }
@@ -189,6 +209,7 @@ namespace AffixGen
                         if (tracker.buffIndex == mostRecentAttackIndex)
                         {
                             tracker.isCurseLock = true;
+                            trackerBody.AddBuff(tracker.buffIndex);
                             return true;
                         }
                     }
@@ -232,6 +253,7 @@ namespace AffixGen
                     trackerBody.AddBuff(tracker.buffIndex);
                 }
             }
+            currentStageLocks = 0;
         }
 
         private void CharacterBody_OnEquipmentGained(On.RoR2.CharacterBody.orig_OnEquipmentGained orig, CharacterBody self, EquipmentDef equipmentDef)
