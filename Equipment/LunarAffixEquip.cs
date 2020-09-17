@@ -18,7 +18,7 @@ namespace AffixGen
         {
             LanguageAPI.Add("LUNAR_AFFIX_NAME", "Tempestuous Rage");
             LanguageAPI.Add("LUNAR_AFFIX_PICK", "Capture the most recent affix you were hit by, but soften your senses");
-            LanguageAPI.Add("LUNAR_AFFIX_DESC", "Capture the most recent affix you were hit by for the rest of your life, but suffer a 10% increase to all damage you take per capture." + Environment.NewLine +
+            LanguageAPI.Add("LUNAR_AFFIX_DESC", "Capture the most recent affix you were hit by for the rest of your life, but suffer a " + (AffixEquipBehaviour.curseMultiplier * 100).ToString() + "% increase to all damage you take per capture." + Environment.NewLine +
                                                 "The severity of the curse can be temporarily reduced by obtaining the affix via Untapped Potential, Wake of Vultures, or the Elite Equipment.");
             string longLore = "There's a storm brewing..." + Environment.NewLine +
                               "Five weeks we've been lost at seas and I'm telling you something," + Environment.NewLine +
