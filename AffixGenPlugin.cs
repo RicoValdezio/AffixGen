@@ -13,7 +13,7 @@ namespace AffixGen
     [NetworkCompatibility(CompatibilityLevel.EveryoneMustHaveMod, VersionStrictness.EveryoneNeedSameModVersion)]
     public class AffixGenPlugin : BaseUnityPlugin
     {
-        private const string ModVer = "2.0.0";
+        private const string ModVer = "2.0.1";
         private const string ModName = "AffixGen";
         private const string ModGuid = "com.RicoValdezio.AffixGen";
         public static AffixGenPlugin Instance;

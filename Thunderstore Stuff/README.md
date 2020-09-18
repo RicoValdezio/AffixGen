@@ -17,6 +17,7 @@ There might be very slight chance that when starting a run the game will lock up
 
 Changelog
 ------------
+2.0.1 - Fixed a bug that prevented multiple runs without relaunching the game
 2.0.0 - Complete redesign, expect day-one bugs
 1.1.3 - Fixed a bug that was causing a bunch of issues
 1.1.2 - Fixed a bug with Rex and DoT type damage
