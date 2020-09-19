@@ -40,6 +40,9 @@
     <Reference Include="UnityEngine.Networking">
       <HintPath>..\..\..\..\Documents\Libs\UnityEngine.Networking.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEngine.UNETModule">
+      <HintPath>..\..\..\..\Documents\Libs\UnityEngine.UNETModule.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>

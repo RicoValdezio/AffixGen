@@ -1,6 +1,7 @@
 ﻿using RoR2;
 using System.Collections.Generic;
 using UnityEngine;
+using R2API.Networking;
 
 namespace AffixGen
 {
@@ -96,12 +97,14 @@ namespace AffixGen
                         //If the buff is StageLock or CurseLock, give it to me
                         if (tracker.isCurseLock || tracker.isStageLock)
                         {
-                            trackerBody.AddBuff(tracker.buffIndex);
+                            //trackerBody.AddBuff(tracker.buffIndex);
+                            trackerBody.ApplyBuff(tracker.buffIndex, 1);
                         }
                         //If neither Lock, and also not Held nor Vulture, take it away
                         else if (!tracker.isHeld && !tracker.isVultured)
                         {
-                            trackerBody.RemoveBuff(tracker.buffIndex);
+                            //trackerBody.RemoveBuff(tracker.buffIndex);
+                            trackerBody.ApplyBuff(tracker.buffIndex, 0);
                         }
 
                         //Check is the buff is currently from Wake of Vultures
@@ -191,7 +194,8 @@ namespace AffixGen
                         {
                             tracker.isStageLock = true;
                             trackerBody.inventory.SetEquipmentIndex(EquipmentIndex.None);
-                            trackerBody.AddBuff(tracker.buffIndex);
+                            //trackerBody.AddBuff(tracker.buffIndex);
+                            //trackerBody.ApplyBuff(tracker.buffIndex, 1);
                             currentStageLocks++;
                             return false;
                         }
@@ -209,7 +213,8 @@ namespace AffixGen
                         if (tracker.buffIndex == mostRecentAttackIndex)
                         {
                             tracker.isCurseLock = true;
-                            trackerBody.AddBuff(tracker.buffIndex);
+                            //trackerBody.AddBuff(tracker.buffIndex);
+                            //trackerBody.ApplyBuff(tracker.buffIndex, 1);
                             return true;
                         }
                     }
