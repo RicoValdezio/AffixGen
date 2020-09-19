@@ -83,7 +83,7 @@ namespace AffixGen
 
         private void Update()
         {
-            if (trackerMaster = gameObject.GetComponent<CharacterMaster>())
+            if (gameObject.GetComponent<CharacterMaster>())
             {
                 trackerMaster = gameObject.GetComponent<CharacterMaster>();
                 if (trackerMaster.GetBody() != null)

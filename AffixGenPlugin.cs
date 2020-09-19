@@ -4,6 +4,7 @@ using R2API.Utils;
 using RoR2;
 using System.Reflection;
 using UnityEngine;
+using UnityEngine.Networking;
 
 namespace AffixGen
 {
@@ -26,7 +27,7 @@ namespace AffixGen
             BaseAffixEquip.Init();
             LunarAffixEquip.Init();
 
-            On.RoR2.CharacterMaster.OnBodyStart += CharacterMaster_OnBodyStart;
+            On.RoR2.CharacterBody.OnInventoryChanged += CharacterBody_OnInventoryChanged;
         }
 
         private static void RegisterAssetBundleProvider()
@@ -39,12 +40,11 @@ namespace AffixGen
             }
         }
 
-        private void CharacterMaster_OnBodyStart(On.RoR2.CharacterMaster.orig_OnBodyStart orig, CharacterMaster self, CharacterBody body)
+        private void CharacterBody_OnInventoryChanged(On.RoR2.CharacterBody.orig_OnInventoryChanged orig, CharacterBody self)
         {
-            orig(self, body);
-            if (self.GetBody().teamComponent.teamIndex == TeamIndex.Player && !self.gameObject.GetComponent<AffixEquipBehaviour>())
+            if (NetworkServer.active && self.teamComponent.teamIndex == TeamIndex.Player && !self.masterObject.GetComponent<AffixEquipBehaviour>())
             {
-                self.gameObject.AddComponent<AffixEquipBehaviour>();
+                self.masterObject.AddComponent<AffixEquipBehaviour>();
             }
         }
     }
