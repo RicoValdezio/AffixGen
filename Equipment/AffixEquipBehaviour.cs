@@ -239,6 +239,7 @@ namespace AffixGen
                     }
                 }
             }
+            //self.ApplyBuff(buffType, 1, duration);
             orig(self, buffType, duration);
         }
 

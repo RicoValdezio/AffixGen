@@ -12,6 +12,7 @@ When buffs are given by UP or TR, give the elite equip display
 
 Changelog
 ------------
+2.0.3 - Accidentally disabled all other ItemBehaviours in 2.0.2, fixed that
 2.0.2 - Fixed a networking bug that gave clients faulty buff icons
 2.0.1 - Fixed a bug that prevented multiple runs without relaunching the game
 2.0.0 - Complete redesign, expect day-one bugs
