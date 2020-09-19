@@ -10,13 +10,9 @@ Planned Features
 Some UI element to track curses and elite effects (beside the buff icons)
 When buffs are given by UP or TR, give the elite equip display
 
-Known Bugs
-------------
-There is a short delay between the TR granting a buff and actually activating it. If this happens, picking up gold seems to fix it.
-There might be very slight chance that when starting a run the game will lock up. I only ever had it once and wasn't able to recreate it.
-
 Changelog
 ------------
+2.0.2 - Fixed a networking bug that gave clients faulty buff icons
 2.0.1 - Fixed a bug that prevented multiple runs without relaunching the game
 2.0.0 - Complete redesign, expect day-one bugs
 1.1.3 - Fixed a bug that was causing a bunch of issues
