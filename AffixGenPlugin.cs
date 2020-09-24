@@ -13,7 +13,7 @@ namespace AffixGen
     [NetworkCompatibility(CompatibilityLevel.EveryoneMustHaveMod, VersionStrictness.EveryoneNeedSameModVersion)]
     public class AffixGenPlugin : BaseUnityPlugin
     {
-        private const string ModVer = "2.0.3";
+        private const string ModVer = "2.0.4";
         private const string ModName = "AffixGen";
         private const string ModGuid = "com.RicoValdezio.AffixGen";
         public static AffixGenPlugin Instance;
@@ -41,8 +41,9 @@ namespace AffixGen
 
         private void CharacterBody_OnInventoryChanged(On.RoR2.CharacterBody.orig_OnInventoryChanged orig, CharacterBody self)
         {
-            if (self.teamComponent.teamIndex == TeamIndex.Player && !self.masterObject.GetComponent<AffixEquipBehaviour>())
+            if (self.teamComponent.teamIndex == TeamIndex.Player && !self.masterObject.GetComponent<AffixEquipBehaviour>() && !self.baseNameToken.Contains("DRONE") && !self.baseNameToken.Contains("TURRET"))
             {
+                //Chat.AddMessage("Adding Component to : " + self.baseNameToken);
                 self.masterObject.AddComponent<AffixEquipBehaviour>();
             }
             orig(self);
