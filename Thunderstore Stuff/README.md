@@ -12,6 +12,7 @@ When buffs are given by UP or TR, give the elite equip display
 
 Changelog
 ------------
+2.0.5 - Changed hook to check if player controlled, should prevent odd behaviour with drones/turrets/clones
 2.0.4 - Added a check to prevent Drones and Turrets from registering hooks
 2.0.3 - Accidentally disabled all other ItemBehaviours in 2.0.2, fixed that
 2.0.2 - Fixed a networking bug that gave clients faulty buff icons
