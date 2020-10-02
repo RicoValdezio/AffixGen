@@ -1,6 +1,7 @@
 ﻿using BepInEx;
 using R2API;
 using R2API.Utils;
+using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
 
@@ -12,14 +13,16 @@ namespace AffixGen
     [NetworkCompatibility(CompatibilityLevel.EveryoneMustHaveMod, VersionStrictness.EveryoneNeedSameModVersion)]
     public class AffixGenPlugin : BaseUnityPlugin
     {
-        private const string modVer = "2.0.5";
+        private const string modVer = "2.1.0";
         private const string modName = "AffixGen";
         private const string modGuid = "com.RicoValdezio.AffixGen";
         public static AffixGenPlugin instance;
+        internal static List<AffixEquipBehaviour> activeBehaviours;
 
         private void Awake()
         {
             if (instance == null) instance = this;
+            activeBehaviours = new List<AffixEquipBehaviour>();
 
             RegisterAssetBundleProvider();
             ConfigMaster.Init();

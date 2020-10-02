@@ -27,11 +27,12 @@ namespace AffixGen
             trackerMaster = gameObject.GetComponent<CharacterMaster>();
             curseCount = 0;
             currentStageLocks = 0;
+            AffixGenPlugin.activeBehaviours.Add(this);
+        }
 
-            On.RoR2.HealthComponent.TakeDamage += HealthComponent_TakeDamage;
-            On.RoR2.EquipmentSlot.PerformEquipmentAction += EquipmentSlot_PerformEquipmentAction;
-            On.RoR2.CharacterBody.AddTimedBuff += CharacterBody_AddTimedBuff;
-            On.RoR2.Run.BeginStage += Run_BeginStage;
+        private void OnDisable()
+        {
+            AffixGenPlugin.activeBehaviours.Remove(this);
         }
 
         private void Update()
@@ -101,101 +102,72 @@ namespace AffixGen
             }
         }
 
-        private void HealthComponent_TakeDamage(On.RoR2.HealthComponent.orig_TakeDamage orig, HealthComponent self, DamageInfo damageInfo)
+        internal float CalculateNewDamage(float damage, GameObject damageDealer)
         {
-            //Inject the extra damage if there's curses
-            if (self.body == trackerBody)
+            damage *= 1 + (curseMultiplier * curseCount);
+
+            //Try and capture the affix type of the attacker/inflictor
+            foreach (AffixTracker tracker in affixTrackers)
             {
-                damageInfo.damage *= 1 + (curseMultiplier * curseCount);
+                CharacterBody testBody  = damageDealer.GetComponent<CharacterBody>();
 
-                //Try and capture the affix type of the attacker/inflictor
-                foreach (AffixTracker tracker in affixTrackers)
+                //Set the curse flag if its a match
+                if (testBody && testBody.isElite && testBody.HasBuff(tracker.buffIndex))
                 {
-                    CharacterBody testBody = null;
-                    if (damageInfo.attacker)
-                    {
-                        testBody = damageInfo.attacker.GetComponent<CharacterBody>();
-                    }
-                    else if (damageInfo.inflictor)
-                    {
-                        testBody = damageInfo.inflictor.GetComponent<CharacterBody>();
-                    }
-
-                    //Set the curse flag if its a match
-                    if (testBody && testBody.isElite && testBody.HasBuff(tracker.buffIndex))
-                    {
-                        mostRecentAttackIndex = tracker.buffIndex;
-                        //Chat.AddMessage("Most Recent Damage Type Was : " + tracker.affixNameTag);
-                    }
+                    mostRecentAttackIndex = tracker.buffIndex;
+                    //Chat.AddMessage("Most Recent Damage Type Was : " + tracker.affixNameTag);
                 }
             }
-            orig(self, damageInfo);
+            return damage;
         }
 
-        private bool EquipmentSlot_PerformEquipmentAction(On.RoR2.EquipmentSlot.orig_PerformEquipmentAction orig, EquipmentSlot self, EquipmentIndex equipmentIndex)
+        internal bool PerformBaseAction()
         {
-            if (self.characterBody == trackerBody)
+            //If there's an affix left to give this stage, give it and destroy the equipment
+            foreach (AffixTracker tracker in affixTrackers)
             {
-                //BaseEquip
-                if (equipmentIndex == BaseAffixEquip.index)
+                if (!tracker.isStageLock && tracker.loopsRequired <= Run.instance.loopClearCount && currentStageLocks < maxStageLocks)
                 {
-                    //If there's an affix left to give this stage, give it and destroy the equipment
-                    foreach (AffixTracker tracker in affixTrackers)
-                    {
-                        if (!tracker.isStageLock && tracker.loopsRequired <= Run.instance.loopClearCount && currentStageLocks < maxStageLocks)
-                        {
-                            tracker.isStageLock = true;
-                            trackerBody.inventory.SetEquipmentIndex(EquipmentIndex.None);
-                            //trackerBody.AddBuff(tracker.buffIndex);
-                            //trackerBody.ApplyBuff(tracker.buffIndex, 1);
-                            currentStageLocks++;
-                            return false;
-                        }
-                    }
-                    ShuffleTrackers();
-                    //Else do nothing and keep the equipment
-                    return true;
+                    tracker.isStageLock = true;
+                    trackerBody.inventory.SetEquipmentIndex(EquipmentIndex.None);
+                    currentStageLocks++;
+                    return false;
                 }
-                //LunarEquip
-                if (equipmentIndex == LunarAffixEquip.index)
+            }
+            ShuffleTrackers();
+            //Else do nothing and keep the equipment
+            return true;
+        }
+
+        internal bool PerformLunarAction()
+        {
+            //If the most recent affix was one you don't have yet, add it
+            foreach (AffixTracker tracker in affixTrackers)
+            {
+                if (tracker.buffIndex == mostRecentAttackIndex)
                 {
-                    //If the most recent affix was one you don't have yet, add it
-                    foreach (AffixTracker tracker in affixTrackers)
-                    {
-                        if (tracker.buffIndex == mostRecentAttackIndex)
-                        {
-                            tracker.isCurseLock = true;
-                            //trackerBody.AddBuff(tracker.buffIndex);
-                            //trackerBody.ApplyBuff(tracker.buffIndex, 1);
-                            return true;
-                        }
-                    }
-                    //Else do nothing and keep the equipment
+                    tracker.isCurseLock = true;
                     return true;
                 }
             }
-            return orig(self, equipmentIndex);
+            //Else do nothing and keep the equipment
+            return true;
         }
 
-        private void CharacterBody_AddTimedBuff(On.RoR2.CharacterBody.orig_AddTimedBuff orig, CharacterBody self, BuffIndex buffType, float duration)
+        internal void UpdateVultures(BuffIndex buffType, float duration)
         {
-            if (self == trackerBody)
+            foreach (AffixTracker tracker in affixTrackers)
             {
-                foreach (AffixTracker tracker in affixTrackers)
+                //If the timed buff is an affix, add to the vultureTimeLeft
+                if (buffType == tracker.buffIndex)
                 {
-                    //If the timed buff is an affix, add to the vultureTimeLeft
-                    if (buffType == tracker.buffIndex)
-                    {
-                        tracker.vultureTimeLeft += duration;
-                        tracker.isVultured = true;
-                    }
+                    tracker.vultureTimeLeft += duration;
+                    tracker.isVultured = true;
                 }
             }
-            //self.ApplyBuff(buffType, 1, duration);
-            orig(self, buffType, duration);
         }
 
-        private void Run_BeginStage(On.RoR2.Run.orig_BeginStage orig, Run self)
+        internal void ResetStage()
         {
             //On a new stage, reset all relevant fields
             foreach (AffixTracker tracker in affixTrackers)
@@ -205,7 +177,6 @@ namespace AffixGen
                 tracker.vultureTimeLeft = 0f;
             }
             currentStageLocks = 0;
-            orig(self);
         }
 
         internal void UpdateEquipment(EquipmentIndex gainedEquipmentIndex, bool wasGained)

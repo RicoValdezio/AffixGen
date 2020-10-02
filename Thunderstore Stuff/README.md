@@ -10,8 +10,19 @@ Planned Features
 Some UI element to track curses and elite effects (beside the buff icons)
 When buffs are given by UP or TR, give the elite equip display
 
+Note for Mod Devs
+------------
+If you want to add compatibility for AffixGen to your own elite buff types, I've made the library that holds the affix trackers public to aid in this.
+All you should need to do is add a soft dependency to this plugin and after you register your elite types, the buffs, and their equipment, you should be able to add a new AffixTracker to AffixTrackerLib.affixTrackers.
+This AffixTracker class is relatively self-explanatory, but the details are as follows: (More details can be found in the repo)
+- eliteIndex, buffIndex, and equipmentIndex should all match your EliteIndex, BuffIndex, and EquipmentIndex
+- The bools and floats can be ignored as they're used for the internal maths
+- loopsRequired is the number of loops the the player must complete to unlock the affix (in base game the Poison and Ghost types have a loop requirement of 1)
+- affixNameTag is a string that is currently unused, but may eventually be used in an UI element to let the player know which affix they recieved
+
 Changelog
 ------------
+2.1.0 - Major refactor to hook registration, turrets and drones are re-enabled and should be lag-free
 2.0.5 - Changed hook to check if player controlled, should prevent odd behaviour with drones/turrets/clones
 2.0.4 - Added a check to prevent Drones and Turrets from registering hooks
 2.0.3 - Accidentally disabled all other ItemBehaviours in 2.0.2, fixed that
