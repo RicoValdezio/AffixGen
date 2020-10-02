@@ -27,19 +27,11 @@ namespace AffixGen
             trackerMaster = gameObject.GetComponent<CharacterMaster>();
             curseCount = 0;
             currentStageLocks = 0;
-            AffixGenPlugin.activeBehaviours.Add(this);
 
             On.RoR2.HealthComponent.TakeDamage += HealthComponent_TakeDamage;
             On.RoR2.EquipmentSlot.PerformEquipmentAction += EquipmentSlot_PerformEquipmentAction;
             On.RoR2.CharacterBody.AddTimedBuff += CharacterBody_AddTimedBuff;
             On.RoR2.Run.BeginStage += Run_BeginStage;
-            On.RoR2.CharacterBody.OnEquipmentGained += CharacterBody_OnEquipmentGained;
-            On.RoR2.CharacterBody.OnEquipmentLost += CharacterBody_OnEquipmentLost;
-        }
-
-        private void OnDisable()
-        {
-            AffixGenPlugin.activeBehaviours.Remove(this);
         }
 
         private void Update()
@@ -216,36 +208,17 @@ namespace AffixGen
             orig(self);
         }
 
-        private void CharacterBody_OnEquipmentGained(On.RoR2.CharacterBody.orig_OnEquipmentGained orig, CharacterBody self, EquipmentDef equipmentDef)
+        internal void UpdateEquipment(EquipmentIndex gainedEquipmentIndex, bool wasGained)
         {
-            if (self == trackerBody)
+            foreach (AffixTracker tracker in affixTrackers)
             {
-                foreach (AffixTracker tracker in affixTrackers)
+                //If I have the elite equip, set isHeld to true
+                if (gainedEquipmentIndex == tracker.equipmentIndex)
                 {
-                    //If I have the elite equip, set isHeld to true
-                    if (equipmentDef.equipmentIndex == tracker.equipmentIndex)
-                    {
-                        tracker.isHeld = true;
-                    }
+                    tracker.isHeld = wasGained;
+                    break;
                 }
             }
-            orig(self, equipmentDef);
-        }
-
-        private void CharacterBody_OnEquipmentLost(On.RoR2.CharacterBody.orig_OnEquipmentLost orig, CharacterBody self, EquipmentDef equipmentDef)
-        {
-            if (self == trackerBody)
-            {
-                foreach (AffixTracker tracker in affixTrackers)
-                {
-                    //If I had the elite equip, set isHeld to false
-                    if (equipmentDef.equipmentIndex == tracker.equipmentIndex)
-                    {
-                        tracker.isHeld = false;
-                    }
-                }
-            }
-            orig(self, equipmentDef);
         }
     }
 }

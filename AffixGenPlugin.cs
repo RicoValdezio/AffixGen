@@ -1,8 +1,6 @@
 ﻿using BepInEx;
 using R2API;
 using R2API.Utils;
-using RoR2;
-using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
 
@@ -18,20 +16,17 @@ namespace AffixGen
         private const string modName = "AffixGen";
         private const string modGuid = "com.RicoValdezio.AffixGen";
         public static AffixGenPlugin instance;
-        internal static List<AffixEquipBehaviour> activeBehaviours;
 
         private void Awake()
         {
             if (instance == null) instance = this;
-            activeBehaviours = new List<AffixEquipBehaviour>();
 
             RegisterAssetBundleProvider();
             ConfigMaster.Init();
             BaseAffixEquip.Init();
             LunarAffixEquip.Init();
             AffixTrackerLib.Init();
-
-            On.RoR2.CharacterBody.OnInventoryChanged += CharacterBody_OnInventoryChanged;
+            HookMaster.Init();
         }
 
         private static void RegisterAssetBundleProvider()
@@ -42,16 +37,6 @@ namespace AffixGen
                 AssetBundleResourcesProvider provider = new AssetBundleResourcesProvider("@AffixGen", bundle);
                 ResourcesAPI.AddProvider(provider);
             }
-        }
-
-        private void CharacterBody_OnInventoryChanged(On.RoR2.CharacterBody.orig_OnInventoryChanged orig, CharacterBody self)
-        {
-            if (self.teamComponent.teamIndex == TeamIndex.Player && !self.masterObject.GetComponent<AffixEquipBehaviour>() && self.master.playerCharacterMasterController)
-            {
-                //Chat.AddMessage("Adding Component to : " + self.baseNameToken);
-                self.masterObject.AddComponent<AffixEquipBehaviour>();
-            }
-            orig(self);
         }
     }
 }
