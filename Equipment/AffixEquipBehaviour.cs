@@ -5,19 +5,8 @@ using R2API.Networking;
 
 namespace AffixGen
 {
-    class AffixEquipBehaviour : MonoBehaviour
+    internal class AffixEquipBehaviour : MonoBehaviour
     {
-        private class AffixTracker
-        {
-            internal EliteIndex eliteIndex;
-            internal BuffIndex buffIndex;
-            internal EquipmentIndex equipmentIndex;
-            internal bool isStageLock, isCurseLock, isHeld, isVultured;
-            internal float vultureTimeLeft;
-            internal int loopsRequired;
-            internal string affixNameTag;
-        }
-
         private List<AffixTracker> affixTrackers;
         internal int curseCount;
         internal static float curseMultiplier;
@@ -29,50 +18,16 @@ namespace AffixGen
 
         private void OnEnable()
         {
-            affixTrackers = new List<AffixTracker>()
+            affixTrackers = new List<AffixTracker>();
+            foreach(AffixTracker tracker in AffixTrackerLib.affixTrackers)
             {
-                new AffixTracker //Fire
-                {
-                    eliteIndex = EliteIndex.Fire,
-                    buffIndex = BuffIndex.AffixRed,
-                    equipmentIndex = EquipmentIndex.AffixRed,
-                    affixNameTag = "Fire"
-                },
-                new AffixTracker //Lightning
-                {
-                    eliteIndex = EliteIndex.Lightning,
-                    buffIndex = BuffIndex.AffixBlue,
-                    equipmentIndex = EquipmentIndex.AffixBlue,
-                    affixNameTag = "Lightning"
-                },
-                new AffixTracker //Ice
-                {
-                    eliteIndex = EliteIndex.Ice,
-                    buffIndex = BuffIndex.AffixWhite,
-                    equipmentIndex = EquipmentIndex.AffixWhite,
-                    affixNameTag = "Ice"
-                },
-                new AffixTracker //Poison
-                {
-                    eliteIndex = EliteIndex.Poison,
-                    buffIndex = BuffIndex.AffixPoison,
-                    equipmentIndex = EquipmentIndex.AffixPoison,
-                    loopsRequired = 1,
-                    affixNameTag = "Poison"
-                },
-                new AffixTracker //Ghost
-                {
-                    eliteIndex = EliteIndex.Haunted,
-                    buffIndex = BuffIndex.AffixHaunted,
-                    equipmentIndex = EquipmentIndex.AffixHaunted,
-                    loopsRequired = 1,
-                    affixNameTag = "Haunting"
-                }
-            };
+                affixTrackers.Add((AffixTracker)tracker.Clone());
+            }
             ShuffleTrackers();
             trackerMaster = gameObject.GetComponent<CharacterMaster>();
             curseCount = 0;
             currentStageLocks = 0;
+            AffixGenPlugin.activeBehaviours.Add(this);
 
             On.RoR2.HealthComponent.TakeDamage += HealthComponent_TakeDamage;
             On.RoR2.EquipmentSlot.PerformEquipmentAction += EquipmentSlot_PerformEquipmentAction;
@@ -80,6 +35,11 @@ namespace AffixGen
             On.RoR2.Run.BeginStage += Run_BeginStage;
             On.RoR2.CharacterBody.OnEquipmentGained += CharacterBody_OnEquipmentGained;
             On.RoR2.CharacterBody.OnEquipmentLost += CharacterBody_OnEquipmentLost;
+        }
+
+        private void OnDisable()
+        {
+            AffixGenPlugin.activeBehaviours.Remove(this);
         }
 
         private void Update()
