@@ -58,11 +58,11 @@ namespace AffixGen
         {
             if (self.characterBody.masterObject.GetComponent<AffixEquipBehaviour>())
             {
-                if(equipmentIndex == BaseAffixEquip.index)
+                if (equipmentIndex == BaseAffixEquip.index)
                 {
                     return self.characterBody.masterObject.GetComponent<AffixEquipBehaviour>().PerformBaseAction();
                 }
-                else if(equipmentIndex == LunarAffixEquip.index)
+                else if (equipmentIndex == LunarAffixEquip.index)
                 {
                     return self.characterBody.masterObject.GetComponent<AffixEquipBehaviour>().PerformLunarAction();
                 }
@@ -72,9 +72,9 @@ namespace AffixGen
 
         private static void HealthComponent_TakeDamage(On.RoR2.HealthComponent.orig_TakeDamage orig, HealthComponent self, DamageInfo damageInfo)
         {
-            if (self.body.masterObject.GetComponent<AffixEquipBehaviour>())
+            if (self.body && self.body.masterObject && self.body.masterObject.GetComponent<AffixEquipBehaviour>())
             {
-                damageInfo.damage = self.body.masterObject.GetComponent<AffixEquipBehaviour>().CalculateNewDamage(damageInfo.damage, damageInfo.attacker != null ? damageInfo.attacker : damageInfo.inflictor);
+                damageInfo = self.body.masterObject.GetComponent<AffixEquipBehaviour>().CalculateNewDamage(damageInfo);
             }
             orig(self, damageInfo);
         }

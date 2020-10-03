@@ -102,23 +102,32 @@ namespace AffixGen
             }
         }
 
-        internal float CalculateNewDamage(float damage, GameObject damageDealer)
+        internal DamageInfo CalculateNewDamage(DamageInfo damageInfo)
         {
-            damage *= 1 + (curseMultiplier * curseCount);
+            damageInfo.damage *= 1 + (curseMultiplier * curseCount);
+
+            CharacterBody testBody = null;
+            if (damageInfo.attacker)
+            {
+                testBody = damageInfo.attacker.GetComponent<CharacterBody>();
+            }
+            else if (damageInfo.inflictor)
+            {
+                testBody = damageInfo.inflictor.GetComponent<CharacterBody>();
+            }
 
             //Try and capture the affix type of the attacker/inflictor
             foreach (AffixTracker tracker in affixTrackers)
             {
-                CharacterBody testBody  = damageDealer.GetComponent<CharacterBody>();
-
                 //Set the curse flag if its a match
                 if (testBody && testBody.isElite && testBody.HasBuff(tracker.buffIndex))
                 {
                     mostRecentAttackIndex = tracker.buffIndex;
                     //Chat.AddMessage("Most Recent Damage Type Was : " + tracker.affixNameTag);
+                    break;
                 }
             }
-            return damage;
+            return damageInfo;
         }
 
         internal bool PerformBaseAction()
