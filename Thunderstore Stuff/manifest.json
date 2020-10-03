@@ -1,6 +1,6 @@
 {
     "name": "AffixGen",
-    "version_number": "2.1.1",
+    "version_number": "2.1.2",
     "website_url": "https://github.com/RicoValdezio/AffixGen",
     "description": "Elite effects on-demand! Comes with two new equipment to grant affixes on use.",
     "dependencies": [
