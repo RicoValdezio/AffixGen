@@ -22,6 +22,7 @@ This AffixTracker class is relatively self-explanatory, but the details are as f
 
 Changelog
 ------------
+2.1.3 - Did a bit of code cleanup, no new functionality, just making the code a bit lighter and faster
 2.1.2 - Added some more error-proofing since the last assumption wasn't the only one that was wrong
 2.1.1 - Fixed an error that occured due to my assumption that every HealthComponent has a CharacterBody
 2.1.0 - Major refactor to hook registration, turrets and drones are re-enabled and should be lag-free

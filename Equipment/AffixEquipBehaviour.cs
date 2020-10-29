@@ -37,12 +37,12 @@ namespace AffixGen
 
         private void Update()
         {
-            if (gameObject.GetComponent<CharacterMaster>())
+            if (gameObject.GetComponent<CharacterMaster>() is CharacterMaster characterMaster)
             {
-                trackerMaster = gameObject.GetComponent<CharacterMaster>();
-                if (trackerMaster.GetBody() != null)
+                trackerMaster = characterMaster;
+                if (trackerMaster.GetBody() is CharacterBody characterBody)
                 {
-                    trackerBody = trackerMaster.GetBody();
+                    trackerBody = characterBody;
                     int tempCurseCount = 0;
 
                     foreach (AffixTracker tracker in affixTrackers)

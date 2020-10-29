@@ -5,13 +5,13 @@ namespace AffixGen
 {
     public class AffixTracker : ICloneable
     {
-        internal EliteIndex eliteIndex;
-        internal BuffIndex buffIndex;
-        internal EquipmentIndex equipmentIndex;
+        public EliteIndex eliteIndex;
+        public BuffIndex buffIndex;
+        public EquipmentIndex equipmentIndex;
         internal bool isStageLock, isCurseLock, isHeld, isVultured;
         internal float vultureTimeLeft;
-        internal int loopsRequired;
-        internal string affixNameTag;
+        public int loopsRequired;
+        public string affixNameTag;
 
         public object Clone()
         {
@@ -21,7 +21,7 @@ namespace AffixGen
                 buffIndex = buffIndex,
                 equipmentIndex = equipmentIndex,
                 loopsRequired = loopsRequired,
-                affixNameTag = affixNameTag
+                affixNameTag = affixNameTag,
             };
             return cloneTracker;
         }

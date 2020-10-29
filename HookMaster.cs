@@ -36,35 +36,35 @@ namespace AffixGen
                     self.masterObject.AddComponent<AffixEquipBehaviour>();
                 }
             }
-            else if (self.masterObject && self.masterObject.GetComponent<AffixEquipBehaviour>())
+            else if (self.masterObject && self.masterObject.GetComponent<AffixEquipBehaviour>() is AffixEquipBehaviour behaviour)
             {
                 //If I have one, run the modified pickup hook in the behaviour
-                self.masterObject.GetComponent<AffixEquipBehaviour>().UpdateEquipment(equipmentDef.equipmentIndex, true);
+                behaviour.UpdateEquipment(equipmentDef.equipmentIndex, true);
             }
             orig(self, equipmentDef);
         }
 
         private static void CharacterBody_OnEquipmentLost(On.RoR2.CharacterBody.orig_OnEquipmentLost orig, CharacterBody self, EquipmentDef equipmentDef)
         {
-            if (self.masterObject && self.masterObject.GetComponent<AffixEquipBehaviour>())
+            if (self.masterObject && self.masterObject.GetComponent<AffixEquipBehaviour>() is AffixEquipBehaviour behaviour)
             {
                 //If I have one, run the modified pickup hook in the behaviour
-                self.masterObject.GetComponent<AffixEquipBehaviour>().UpdateEquipment(equipmentDef.equipmentIndex, false);
+                behaviour.UpdateEquipment(equipmentDef.equipmentIndex, false);
             }
             orig(self, equipmentDef);
         }
 
         private static bool EquipmentSlot_PerformEquipmentAction(On.RoR2.EquipmentSlot.orig_PerformEquipmentAction orig, EquipmentSlot self, EquipmentIndex equipmentIndex)
         {
-            if (self.characterBody && self.characterBody.masterObject && self.characterBody.masterObject.GetComponent<AffixEquipBehaviour>())
+            if (self.characterBody && self.characterBody.masterObject && self.characterBody.masterObject.GetComponent<AffixEquipBehaviour>() is AffixEquipBehaviour behaviour)
             {
                 if (equipmentIndex == BaseAffixEquip.index)
                 {
-                    return self.characterBody.masterObject.GetComponent<AffixEquipBehaviour>().PerformBaseAction();
+                    return behaviour.PerformBaseAction();
                 }
                 else if (equipmentIndex == LunarAffixEquip.index)
                 {
-                    return self.characterBody.masterObject.GetComponent<AffixEquipBehaviour>().PerformLunarAction();
+                    return behaviour.PerformLunarAction();
                 }
             }
             return orig(self, equipmentIndex);
@@ -72,18 +72,18 @@ namespace AffixGen
 
         private static void HealthComponent_TakeDamage(On.RoR2.HealthComponent.orig_TakeDamage orig, HealthComponent self, DamageInfo damageInfo)
         {
-            if (self.body && self.body.masterObject && self.body.masterObject.GetComponent<AffixEquipBehaviour>())
+            if (self.body && self.body.masterObject && self.body.masterObject.GetComponent<AffixEquipBehaviour>() is AffixEquipBehaviour behaviour)
             {
-                damageInfo = self.body.masterObject.GetComponent<AffixEquipBehaviour>().CalculateNewDamage(damageInfo);
+                damageInfo = behaviour.CalculateNewDamage(damageInfo);
             }
             orig(self, damageInfo);
         }
 
         private static void CharacterBody_AddTimedBuff(On.RoR2.CharacterBody.orig_AddTimedBuff orig, CharacterBody self, BuffIndex buffType, float duration)
         {
-            if (self.masterObject && self.masterObject.GetComponent<AffixEquipBehaviour>())
+            if (self.masterObject && self.masterObject.GetComponent<AffixEquipBehaviour>() is AffixEquipBehaviour behaviour)
             {
-                self.masterObject.GetComponent<AffixEquipBehaviour>().UpdateVultures(buffType, duration);
+                behaviour.UpdateVultures(buffType, duration);
             }
             orig(self, buffType, duration);
         }
