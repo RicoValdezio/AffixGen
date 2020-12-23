@@ -2,9 +2,9 @@
 
 namespace AffixGen
 {
-    internal class HookMaster
+    public class HookMaster
     {
-        internal static void Init()
+        public static void Init()
         {
             On.RoR2.Run.BeginStage += Run_BeginStage;
 
@@ -17,7 +17,7 @@ namespace AffixGen
             On.RoR2.CharacterBody.AddTimedBuff += CharacterBody_AddTimedBuff;
         }
 
-        private static void Run_BeginStage(On.RoR2.Run.orig_BeginStage orig, Run self)
+        public static void Run_BeginStage(On.RoR2.Run.orig_BeginStage orig, Run self)
         {
             foreach (AffixEquipBehaviour behaviour in AffixGenPlugin.activeBehaviours)
             {
@@ -26,7 +26,7 @@ namespace AffixGen
             orig(self);
         }
 
-        private static void CharacterBody_OnEquipmentGained(On.RoR2.CharacterBody.orig_OnEquipmentGained orig, CharacterBody self, EquipmentDef equipmentDef)
+        public static void CharacterBody_OnEquipmentGained(On.RoR2.CharacterBody.orig_OnEquipmentGained orig, CharacterBody self, EquipmentDef equipmentDef)
         {
             if (!self.masterObject.GetComponent<AffixEquipBehaviour>())
             {
@@ -44,7 +44,7 @@ namespace AffixGen
             orig(self, equipmentDef);
         }
 
-        private static void CharacterBody_OnEquipmentLost(On.RoR2.CharacterBody.orig_OnEquipmentLost orig, CharacterBody self, EquipmentDef equipmentDef)
+        public static void CharacterBody_OnEquipmentLost(On.RoR2.CharacterBody.orig_OnEquipmentLost orig, CharacterBody self, EquipmentDef equipmentDef)
         {
             if (self.masterObject && self.masterObject.GetComponent<AffixEquipBehaviour>() is AffixEquipBehaviour behaviour)
             {
@@ -54,7 +54,7 @@ namespace AffixGen
             orig(self, equipmentDef);
         }
 
-        private static bool EquipmentSlot_PerformEquipmentAction(On.RoR2.EquipmentSlot.orig_PerformEquipmentAction orig, EquipmentSlot self, EquipmentIndex equipmentIndex)
+        public static bool EquipmentSlot_PerformEquipmentAction(On.RoR2.EquipmentSlot.orig_PerformEquipmentAction orig, EquipmentSlot self, EquipmentIndex equipmentIndex)
         {
             if (self.characterBody && self.characterBody.masterObject && self.characterBody.masterObject.GetComponent<AffixEquipBehaviour>() is AffixEquipBehaviour behaviour)
             {
@@ -70,7 +70,7 @@ namespace AffixGen
             return orig(self, equipmentIndex);
         }
 
-        private static void HealthComponent_TakeDamage(On.RoR2.HealthComponent.orig_TakeDamage orig, HealthComponent self, DamageInfo damageInfo)
+        public static void HealthComponent_TakeDamage(On.RoR2.HealthComponent.orig_TakeDamage orig, HealthComponent self, DamageInfo damageInfo)
         {
             if (self.body && self.body.masterObject && self.body.masterObject.GetComponent<AffixEquipBehaviour>() is AffixEquipBehaviour behaviour)
             {
@@ -79,7 +79,7 @@ namespace AffixGen
             orig(self, damageInfo);
         }
 
-        private static void CharacterBody_AddTimedBuff(On.RoR2.CharacterBody.orig_AddTimedBuff orig, CharacterBody self, BuffIndex buffType, float duration)
+        public static void CharacterBody_AddTimedBuff(On.RoR2.CharacterBody.orig_AddTimedBuff orig, CharacterBody self, BuffIndex buffType, float duration)
         {
             if (self.masterObject && self.masterObject.GetComponent<AffixEquipBehaviour>() is AffixEquipBehaviour behaviour)
             {

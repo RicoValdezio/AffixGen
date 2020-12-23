@@ -5,18 +5,18 @@ using R2API.Networking;
 
 namespace AffixGen
 {
-    internal class AffixEquipBehaviour : MonoBehaviour
+    public class AffixEquipBehaviour : MonoBehaviour
     {
-        private List<AffixTracker> affixTrackers;
-        internal int curseCount;
-        internal static float curseMultiplier;
-        private CharacterMaster trackerMaster;
-        private CharacterBody trackerBody;
-        private BuffIndex mostRecentAttackIndex;
-        internal static int maxStageLocks;
-        internal int currentStageLocks;
+        public List<AffixTracker> affixTrackers;
+        public int curseCount;
+        public static float curseMultiplier;
+        public CharacterMaster trackerMaster;
+        public CharacterBody trackerBody;
+        public BuffIndex mostRecentAttackIndex;
+        public static int maxStageLocks;
+        public int currentStageLocks;
 
-        private void OnEnable()
+        public void OnEnable()
         {
             affixTrackers = new List<AffixTracker>();
             foreach(AffixTracker tracker in AffixTrackerLib.affixTrackers)
@@ -30,12 +30,12 @@ namespace AffixGen
             AffixGenPlugin.activeBehaviours.Add(this);
         }
 
-        private void OnDisable()
+        public void OnDisable()
         {
             AffixGenPlugin.activeBehaviours.Remove(this);
         }
 
-        private void Update()
+        public void Update()
         {
             if (gameObject.GetComponent<CharacterMaster>() is CharacterMaster characterMaster)
             {
@@ -91,7 +91,7 @@ namespace AffixGen
             }
         }
 
-        private void ShuffleTrackers()
+        public void ShuffleTrackers()
         {
             for (int i = 0; i < affixTrackers.Count; i++)
             {
@@ -102,8 +102,9 @@ namespace AffixGen
             }
         }
 
-        internal DamageInfo CalculateNewDamage(DamageInfo damageInfo)
+        public DamageInfo CalculateNewDamage(DamageInfo damageInfo)
         {
+            //TODO: Replace the curseCount with a buff that can be displayed to user
             damageInfo.damage *= 1 + (curseMultiplier * curseCount);
 
             CharacterBody testBody = null;
@@ -130,7 +131,7 @@ namespace AffixGen
             return damageInfo;
         }
 
-        internal bool PerformBaseAction()
+        public bool PerformBaseAction()
         {
             //If there's an affix left to give this stage, give it and destroy the equipment
             foreach (AffixTracker tracker in affixTrackers)
@@ -148,7 +149,7 @@ namespace AffixGen
             return true;
         }
 
-        internal bool PerformLunarAction()
+        public bool PerformLunarAction()
         {
             //If the most recent affix was one you don't have yet, add it
             foreach (AffixTracker tracker in affixTrackers)
@@ -163,7 +164,7 @@ namespace AffixGen
             return true;
         }
 
-        internal void UpdateVultures(BuffIndex buffType, float duration)
+        public void UpdateVultures(BuffIndex buffType, float duration)
         {
             foreach (AffixTracker tracker in affixTrackers)
             {
@@ -176,7 +177,7 @@ namespace AffixGen
             }
         }
 
-        internal void ResetStage()
+        public void ResetStage()
         {
             //On a new stage, reset all relevant fields
             foreach (AffixTracker tracker in affixTrackers)
@@ -188,7 +189,7 @@ namespace AffixGen
             currentStageLocks = 0;
         }
 
-        internal void UpdateEquipment(EquipmentIndex gainedEquipmentIndex, bool wasGained)
+        public void UpdateEquipment(EquipmentIndex gainedEquipmentIndex, bool wasGained)
         {
             foreach (AffixTracker tracker in affixTrackers)
             {

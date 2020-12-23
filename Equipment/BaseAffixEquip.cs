@@ -4,9 +4,9 @@ using System;
 
 namespace AffixGen
 {
-    class BaseAffixEquip
+    public class BaseAffixEquip
     {
-        internal static EquipmentIndex index;
+        public static EquipmentIndex index;
 
         internal static void Init()
         {

@@ -19,7 +19,7 @@ namespace AffixGen
         public static AffixGenPlugin instance;
         internal static List<AffixEquipBehaviour> activeBehaviours;
 
-        private void Awake()
+        public void Awake()
         {
             if (instance == null) instance = this;
             activeBehaviours = new List<AffixEquipBehaviour>();
