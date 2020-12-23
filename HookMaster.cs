@@ -81,7 +81,7 @@ namespace AffixGen
 
         public static void CharacterBody_AddTimedBuff(On.RoR2.CharacterBody.orig_AddTimedBuff orig, CharacterBody self, BuffIndex buffType, float duration)
         {
-            if (self.masterObject && self.masterObject.GetComponent<AffixEquipBehaviour>() is AffixEquipBehaviour behaviour)
+            if (self.masterObject && self.masterObject.GetComponent<AffixEquipBehaviour>() is AffixEquipBehaviour behaviour && !float.IsInfinity(duration) && !float.IsNaN(duration))
             {
                 behaviour.UpdateVultures(buffType, duration);
             }

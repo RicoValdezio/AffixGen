@@ -23,7 +23,6 @@ namespace AffixGen
             {
                 affixTrackers.Add((AffixTracker)tracker.Clone());
             }
-            ShuffleTrackers();
             trackerMaster = gameObject.GetComponent<CharacterMaster>();
             curseCount = 0;
             currentStageLocks = 0;
@@ -133,10 +132,11 @@ namespace AffixGen
 
         public bool PerformBaseAction()
         {
+            ShuffleTrackers();
             //If there's an affix left to give this stage, give it and destroy the equipment
             foreach (AffixTracker tracker in affixTrackers)
             {
-                if (!tracker.isStageLock && tracker.loopsRequired <= Run.instance.loopClearCount && currentStageLocks < maxStageLocks)
+                if (!tracker.isStageLock && tracker.isViable() && currentStageLocks < maxStageLocks)
                 {
                     tracker.isStageLock = true;
                     trackerBody.inventory.SetEquipmentIndex(EquipmentIndex.None);
@@ -144,7 +144,6 @@ namespace AffixGen
                     return false;
                 }
             }
-            ShuffleTrackers();
             //Else do nothing and keep the equipment
             return true;
         }

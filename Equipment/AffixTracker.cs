@@ -9,7 +9,7 @@ namespace AffixGen
         public EquipmentIndex equipmentIndex;
         public bool isStageLock, isCurseLock, isHeld, isVultured;
         public float vultureTimeLeft;
-        public int loopsRequired;
+        public Func<bool> isViable;
         public string affixNameTag;
 
         /// <summary>
@@ -17,13 +17,13 @@ namespace AffixGen
         /// </summary>
         /// <param name="buffIdx">The BuffIndex used to determine target elite type, and is granted to user on activation.</param>
         /// <param name="equipIdx">The EquipmentIndex that passively grants the BuffIndex, used to offset the curse.</param>
-        /// <param name="cyclesNeeded">The number of times the user must clear the 5th stage before allowing the buff to be picked.</param>
+        /// <param name="viablityFunction">The boolean function used to determine if the buff can be granted by the basic equipment. If you use ESO, this should match the isAvailable function.</param>
         /// <param name="name">The display name used to notify the user/log of which Tracker was activated.</param>
-        public AffixTracker(BuffIndex buffIdx, EquipmentIndex? equipIdx, int cyclesNeeded, string name)
+        public AffixTracker(BuffIndex buffIdx, EquipmentIndex? equipIdx, Func<bool> viablityFunction, string name)
         {
             buffIndex = buffIdx;
             equipmentIndex = equipIdx ?? EquipmentIndex.None; //Eventually stand up a null Equipment to be used if not given.
-            loopsRequired = cyclesNeeded;
+            isViable = viablityFunction;
             affixNameTag = name;
 
             isStageLock = false;
@@ -35,7 +35,7 @@ namespace AffixGen
 
         public object Clone()
         {
-            return new AffixTracker(buffIndex, equipmentIndex, loopsRequired, affixNameTag); ;
+            return new AffixTracker(buffIndex, equipmentIndex, isViable, affixNameTag); ;
         }
     }
 }
