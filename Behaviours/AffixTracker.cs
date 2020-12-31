@@ -16,13 +16,13 @@ namespace AffixGen
         /// Creates a AffixTracker for a specific elite type
         /// </summary>
         /// <param name="buffIdx">The BuffIndex used to determine target elite type, and is granted to user on activation.</param>
-        /// <param name="equipIdx">The EquipmentIndex that passively grants the BuffIndex, used to offset the curse.</param>
+        /// <param name="equipIdx">The EquipmentIndex that passively grants the BuffIndex, used to offset the curse. Nullable.</param>
         /// <param name="viablityFunction">The boolean function used to determine if the buff can be granted by the basic equipment. If you use ESO, this should match the isAvailable function.</param>
         /// <param name="name">The display name used to notify the user/log of which Tracker was activated.</param>
         public AffixTracker(BuffIndex buffIdx, EquipmentIndex? equipIdx, Func<bool> viablityFunction, string name)
         {
             buffIndex = buffIdx;
-            equipmentIndex = equipIdx ?? EquipmentIndex.None; //Eventually stand up a null Equipment to be used if not given.
+            equipmentIndex = equipIdx ?? NullAffixEquip.index; //Eventually stand up a null Equipment to be used if not given.
             isViable = viablityFunction;
             affixNameTag = name;
 
@@ -37,21 +37,12 @@ namespace AffixGen
         /// Creates a AffixTracker for a specific elite type using ESO tier pattern
         /// </summary>
         /// <param name="buffIdx">The BuffIndex used to determine target elite type, and is granted to user on activation.</param>
-        /// <param name="equipIdx">The EquipmentIndex that passively grants the BuffIndex, used to offset the curse.</param>
+        /// <param name="equipIdx">The EquipmentIndex that passively grants the BuffIndex, used to offset the curse. Nullable.</param>
         /// <param name="tier">The ESO tier of the elite type, automatically creates viabilityFunction like ESO.</param>
         /// <param name="name">The display name used to notify the user/log of which Tracker was activated.</param>
-        public AffixTracker(BuffIndex buffIdx, EquipmentIndex? equipIdx, int tier, string name)
+        public AffixTracker(BuffIndex buffIdx, EquipmentIndex? equipIdx, int tier, string name) : this(buffIdx, equipIdx, () => Run.instance.loopClearCount >= (tier - 1), name)
         {
-            buffIndex = buffIdx;
-            equipmentIndex = equipIdx ?? EquipmentIndex.None; //Eventually stand up a null Equipment to be used if not given.
-            isViable = () => Run.instance.loopClearCount > (tier - 1);
-            affixNameTag = name;
-
-            isStageLock = false;
-            isCurseLock = false;
-            isHeld = false;
-            isVultured = false;
-            vultureTimeLeft = 0f;
+            //This doesn't need a body since its an inherited conversion
         }
 
         public object Clone()

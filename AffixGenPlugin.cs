@@ -28,6 +28,7 @@ namespace AffixGen
             ConfigMaster.Init();
             BaseAffixEquip.Init();
             LunarAffixEquip.Init();
+            NullAffixEquip.Init();
             AffixTrackerLib.Init();
             HookMaster.Init();
         }
