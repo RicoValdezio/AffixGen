@@ -7,21 +7,18 @@ The curses from TR can be temporarily reduced by gaining the elite buff via UP, 
 
 Planned Features
 ------------
-Some UI element to track curses and elite effects (beside the buff icons)
+Improve/replace the buff icon for the "Curse", its a placeholder now (reach out if interested)
 When buffs are given by UP or TR, give the elite equip display
 
 Note for Mod Devs
 ------------
 If you want to add compatibility for AffixGen to your own elite buff types, I've made the library that holds the affix trackers public to aid in this.
 All you should need to do is add a soft dependency to this plugin and after you register your elite types, the buffs, and their equipment, you should be able to add a new AffixTracker to AffixTrackerLib.affixTrackers.
-This AffixTracker class is relatively self-explanatory, but the details are as follows: (More details can be found in the repo)
-- eliteIndex, buffIndex, and equipmentIndex should all match your EliteIndex, BuffIndex, and EquipmentIndex
-- The bools and floats can be ignored as they're used for the internal maths
-- loopsRequired is the number of loops the the player must complete to unlock the affix (in base game the Poison and Ghost types have a loop requirement of 1)
-- affixNameTag is a string that is currently unused, but may eventually be used in an UI element to let the player know which affix they recieved
+The AffixTracker class and its constructors are self-documented, so it should be fairly easy to make them. Reach out if there's something that doesn't make sense.
 
 Changelog
 ------------
+2.2.0 - Minor refactor to tracking system, added visual buff for the "Curse" mechanic, new notes for compatibility
 2.1.3 - Did a bit of code cleanup, no new functionality, just making the code a bit lighter and faster
 2.1.2 - Added some more error-proofing since the last assumption wasn't the only one that was wrong
 2.1.1 - Fixed an error that occured due to my assumption that every HealthComponent has a CharacterBody

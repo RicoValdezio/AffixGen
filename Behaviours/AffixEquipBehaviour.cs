@@ -86,6 +86,11 @@ namespace AffixGen
                         curseCount = tempCurseCount;
                         //Chat.AddMessage("Current Curse Level is: " + curseCount.ToString());
                     }
+                    //Update the visual effect if needed
+                    if(trackerBody.GetBuffCount(CurseBuff.index) != curseCount)
+                    {
+                        trackerBody.ApplyBuff(CurseBuff.index, curseCount);
+                    }
                 }
             }
         }
