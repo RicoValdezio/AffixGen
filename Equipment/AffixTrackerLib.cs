@@ -11,11 +11,11 @@ namespace AffixGen
         {
             affixTrackers = new List<AffixTracker>
             {
-                new AffixTracker(BuffIndex.AffixRed, EquipmentIndex.AffixRed, () => true, "Fire"),
-                new AffixTracker(BuffIndex.AffixBlue, EquipmentIndex.AffixBlue, () => true, "Lightning"),
-                new AffixTracker(BuffIndex.AffixWhite, EquipmentIndex.AffixWhite, () => true, "Ice"),
-                new AffixTracker(BuffIndex.AffixPoison, EquipmentIndex.AffixPoison, () => Run.instance.loopClearCount > 0, "Poison"),
-                new AffixTracker(BuffIndex.AffixHaunted, EquipmentIndex.AffixHaunted, () => Run.instance.loopClearCount > 0, "Haunting")
+                new AffixTracker(BuffIndex.AffixRed, EquipmentIndex.AffixRed, 1, "Fire"),
+                new AffixTracker(BuffIndex.AffixBlue, EquipmentIndex.AffixBlue, 1, "Lightning"),
+                new AffixTracker(BuffIndex.AffixWhite, EquipmentIndex.AffixWhite, 1, "Ice"),
+                new AffixTracker(BuffIndex.AffixPoison, EquipmentIndex.AffixPoison, 2, "Poison"),
+                new AffixTracker(BuffIndex.AffixHaunted, EquipmentIndex.AffixHaunted, 2, "Haunting")
             };
         }
     }

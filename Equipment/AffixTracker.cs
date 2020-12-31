@@ -33,6 +33,27 @@ namespace AffixGen
             vultureTimeLeft = 0f;
         }
 
+        /// <summary>
+        /// Creates a AffixTracker for a specific elite type using ESO tier pattern
+        /// </summary>
+        /// <param name="buffIdx">The BuffIndex used to determine target elite type, and is granted to user on activation.</param>
+        /// <param name="equipIdx">The EquipmentIndex that passively grants the BuffIndex, used to offset the curse.</param>
+        /// <param name="tier">The ESO tier of the elite type, automatically creates viabilityFunction like ESO.</param>
+        /// <param name="name">The display name used to notify the user/log of which Tracker was activated.</param>
+        public AffixTracker(BuffIndex buffIdx, EquipmentIndex? equipIdx, int tier, string name)
+        {
+            buffIndex = buffIdx;
+            equipmentIndex = equipIdx ?? EquipmentIndex.None; //Eventually stand up a null Equipment to be used if not given.
+            isViable = () => Run.instance.loopClearCount > (tier - 1);
+            affixNameTag = name;
+
+            isStageLock = false;
+            isCurseLock = false;
+            isHeld = false;
+            isVultured = false;
+            vultureTimeLeft = 0f;
+        }
+
         public object Clone()
         {
             return new AffixTracker(buffIndex, equipmentIndex, isViable, affixNameTag); ;
