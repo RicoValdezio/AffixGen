@@ -5,16 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="affixgen" />
-    <None Remove="Libs\Assembly-CSharp.dll" />
-  </ItemGroup>
-
-  <ItemGroup>
     <EmbeddedResource Include="affixgen" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Libs\" />
   </ItemGroup>
 
   <ItemGroup>

@@ -145,7 +145,7 @@ _NCrunch_*
 nCrunchTemp_*
 
 # MightyMoose
-*.mm.*
+#*.mm.*
 AutoTest.Net/
 
 # Web workbench (sass)
@@ -338,3 +338,6 @@ ASALocalRun/
 
 # BeatPulse healthcheck temp database
 healthchecksdb
+
+# The base RoR2 code
+Libs/Assembly-CSharp.dll
