@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <None Remove="affixgen" />
+    <None Remove="Libs\Assembly-CSharp.dll" />
   </ItemGroup>
 
   <ItemGroup>
